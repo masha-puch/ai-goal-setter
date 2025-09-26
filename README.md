@@ -82,7 +82,7 @@ Create a `.env` file in the `backend` directory:
 DATABASE_URL="file:./dev.db"
 JWT_SECRET="your-jwt-secret-key"
 OPENAI_API_KEY="your-openai-api-key"
-PORT=3001
+PORT=3000
 ```
 
 4. Set up the database:
@@ -98,7 +98,7 @@ npx prisma db push
 npm run dev
 ```
 
-This will start both the backend server (port 3001) and frontend development server (port 5173).
+This will start both the backend server (port 3000) and frontend development server (port 5173).
 
 ### Available Scripts
 
