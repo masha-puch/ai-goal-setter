@@ -31,8 +31,8 @@ export function ProgressPage() {
       <Card withBorder mt="md">
         <form onSubmit={onAdd}>
           <Group align="end" wrap="wrap">
-            <Select label="Goal" data={goalOptions} value={goalId} onChange={setGoalId} required w={260} />
-            <Select label="Period" data={[ 'monthly','quarterly','custom' ]} value={period} onChange={setPeriod} w={160} />
+            <Select label="Goal" data={goalOptions} value={goalId} onChange={(value) => setGoalId(value)} required w={260} />
+            <Select label="Period" data={[ 'monthly','quarterly','custom' ]} value={period} onChange={(value) => setPeriod(value || 'monthly')} w={160} />
             <TextInput label="Date (ISO)" value={date} onChange={(e) => setDate(e.currentTarget.value)} w={260} />
             <NumberInput label="Progress (0-100)" value={value} onChange={setValue as any} min={0} max={100} w={180} />
             <Select label="Mood" data={[ 'low','neutral','high' ]} value={mood} onChange={setMood} w={140} clearable />

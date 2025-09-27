@@ -8,13 +8,13 @@ type JwtPayload = {
 export function signAccessToken(userId: string): string {
   const secret = process.env.JWT_ACCESS_SECRET as string;
   const expiresIn = process.env.JWT_ACCESS_EXPIRES || '15m';
-  return jwt.sign({ sub: userId, typ: 'access' } as JwtPayload, secret, { expiresIn });
+  return jwt.sign({ sub: userId, typ: 'access' } as JwtPayload, secret, { expiresIn } as any);
 }
 
 export function signRefreshToken(userId: string): string {
   const secret = process.env.JWT_REFRESH_SECRET as string;
   const expiresIn = process.env.JWT_REFRESH_EXPIRES || '30d';
-  return jwt.sign({ sub: userId, typ: 'refresh' } as JwtPayload, secret, { expiresIn });
+  return jwt.sign({ sub: userId, typ: 'refresh' } as JwtPayload, secret, { expiresIn } as any);
 }
 
 export function verifyAccessToken(token: string): JwtPayload {
