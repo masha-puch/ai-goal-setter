@@ -30,17 +30,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Check for existing session on mount
     const token = localStorage.getItem('token')
     if (token) {
-      // TODO: Verify token with backend and get user info
-      // For now, we'll just set loading to false
+      // Verify token with backend and get user info
+      api.get('/auth/me')
+        .then(response => {
+          setUser(response.data)
+        })
+        .catch(error => {
+          console.error('Token verification failed:', error)
+          localStorage.removeItem('token')
+        })
+        .finally(() => {
+          setLoading(false)
+        })
+    } else {
+      setLoading(false)
     }
-    setLoading(false)
   }, [])
 
   const login = async (email: string, password: string) => {
     try {
       const response = await api.post('/auth/login', { email, password })
       const data = response.data
-      localStorage.setItem('token', data.token)
+      localStorage.setItem('token', data.accessToken)
       setUser(data.user)
     } catch (error) {
       console.error('Login error:', error)
@@ -52,7 +63,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const response = await api.post('/auth/register', { email, password, displayName })
       const data = response.data
-      localStorage.setItem('token', data.token)
+      localStorage.setItem('token', data.accessToken)
       setUser(data.user)
     } catch (error) {
       console.error('Registration error:', error)

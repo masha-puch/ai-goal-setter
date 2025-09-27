@@ -9,6 +9,7 @@ import '@mantine/core/styles.css'
 import '@mantine/notifications/styles.css'
 import './style.css'
 import { AuthProvider } from './context/AuthContext'
+import { AuthGuard } from './components/AuthGuard'
 import { AppLayout } from './ui/AppLayout'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
@@ -23,7 +24,11 @@ const queryClient = new QueryClient()
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <AppLayout />,
+    element: (
+      <AuthGuard>
+        <AppLayout />
+      </AuthGuard>
+    ),
     children: [
       { index: true, element: <Dashboard /> },
       { path: 'goals', element: <GoalsPage /> },
@@ -36,9 +41,8 @@ const router = createBrowserRouter([
   },
 ])
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <ColorSchemeScript />
+function App() {
+  return (
     <MantineProvider defaultColorScheme="auto">
       <Notifications position="top-right" />
       <QueryClientProvider client={queryClient}>
@@ -48,5 +52,12 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </MantineProvider>
+  )
+}
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <ColorSchemeScript />
+    <App />
   </React.StrictMode>,
 )
