@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
-import { Button, Card, Container, Group, NumberInput, Select, Table, Text, TextInput, Title } from '@mantine/core'
-import { useCreateProgress, useGoals, useProgress } from '../api/hooks'
+import { Button, Card, Container, Group, NumberInput, Select, Table, TextInput, Title } from '@mantine/core'
+import { useCreateProgress, useGoals, useAllProgress } from '../api/hooks'
 
 export function ProgressPage() {
   const { data: goals } = useGoals()
   const [goalId, setGoalId] = useState<string | null>(null)
-  const { data: entries } = useProgress(goalId)
+  const { data: entries } = useAllProgress()
   const createProgress = useCreateProgress(goalId || '')
 
   const goalOptions = useMemo(() => (goals || []).map((g: any) => ({ value: g.id, label: g.title })), [goals])
@@ -46,6 +46,7 @@ export function ProgressPage() {
         <Table withRowBorders={false} withColumnBorders={false} striped highlightOnHover>
           <Table.Thead>
             <Table.Tr>
+              <Table.Th>Goal</Table.Th>
               <Table.Th>Date</Table.Th>
               <Table.Th>Period</Table.Th>
               <Table.Th>Value</Table.Th>
@@ -56,6 +57,7 @@ export function ProgressPage() {
           <Table.Tbody>
             {(entries || []).map((e: any) => (
               <Table.Tr key={e.id}>
+                <Table.Td>{e.goal?.title || 'Unknown Goal'}</Table.Td>
                 <Table.Td>{new Date(e.date).toLocaleDateString()}</Table.Td>
                 <Table.Td>{e.period}</Table.Td>
                 <Table.Td>{e.progressValue ?? '-'}</Table.Td>

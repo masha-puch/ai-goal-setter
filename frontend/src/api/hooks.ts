@@ -39,11 +39,22 @@ export function useProgress(goalId: string | null) {
   })
 }
 
+// Progress (all goals)
+export function useAllProgress() {
+  return useQuery({
+    queryKey: ['progress', 'all'],
+    queryFn: async () => (await api.get('/progress')).data.items as any[],
+  })
+}
+
 export function useCreateProgress(goalId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (data: any) => (await api.post(`/goals/${goalId}/progress`, data)).data,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['progress', goalId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['progress', goalId] });
+      qc.invalidateQueries({ queryKey: ['progress', 'all'] });
+    },
   })
 }
 
@@ -51,7 +62,7 @@ export function useUpdateProgress() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async ({ progressId, data }: { progressId: string; data: any }) => (await api.patch(`/progress/${progressId}`, data)).data,
-    onSuccess: (_data, vars) => qc.invalidateQueries({ queryKey: ['progress'] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['progress'] }),
   })
 }
 

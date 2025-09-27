@@ -1,14 +1,21 @@
 import { Router } from 'express';
 import { authJwt } from '../middleware/authJwt';
+import { createGoal, getGoals, updateGoal, deleteGoal } from '../controllers/goalsController';
+import { getProgress, createProgress } from '../controllers/progressController';
 
 const router = Router();
 
 router.use(authJwt);
 
-// Placeholder endpoints; will implement fully later
-router.get('/', (_req, res) => {
-  res.json({ items: [], total: 0 });
-});
+// Goals endpoints
+router.get('/', getGoals);
+router.post('/', createGoal);
+router.patch('/:goalId', updateGoal);
+router.delete('/:goalId', deleteGoal);
+
+// Progress endpoints (nested under goals)
+router.get('/:goalId/progress', getProgress);
+router.post('/:goalId/progress', createProgress);
 
 export default router;
 
