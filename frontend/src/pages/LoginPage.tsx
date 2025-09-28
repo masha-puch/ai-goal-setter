@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Button, Card, Container, PasswordInput, TextInput, Title } from '@mantine/core'
+import { Button, Card, Container, PasswordInput, TextInput, Title, Divider } from '@mantine/core'
+import { IconBrandGoogle } from '@tabler/icons-react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate, Link } from 'react-router-dom'
 
 export function LoginPage() {
-  const { login } = useAuth()
+  const { login, loginWithGoogle } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -31,6 +32,17 @@ export function LoginPage() {
           <Button type="submit" fullWidth mt="md" loading={loading}>Login</Button>
           <Button component={Link} to="/register" variant="subtle" fullWidth mt="sm">Create an account</Button>
         </form>
+        
+        <Divider label="or" labelPosition="center" my="md" />
+        
+        <Button 
+          leftSection={<IconBrandGoogle size={16} />}
+          variant="outline" 
+          fullWidth 
+          onClick={loginWithGoogle}
+        >
+          Continue with Google
+        </Button>
       </Card>
     </Container>
   )

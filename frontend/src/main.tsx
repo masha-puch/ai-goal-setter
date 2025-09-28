@@ -13,6 +13,7 @@ import { AuthGuard } from './components/AuthGuard'
 import { AppLayout } from './ui/AppLayout'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
+import { AuthCallback } from './pages/AuthCallback'
 import { Dashboard } from './pages/Dashboard'
 import { GoalsPage } from './pages/GoalsPage'
 import { ProgressPage } from './pages/ProgressPage'
@@ -35,9 +36,19 @@ const router = createBrowserRouter([
       { path: 'progress', element: <ProgressPage /> },
       { path: 'moodboard', element: <MoodboardPage /> },
       { path: 'reflections', element: <ReflectionsPage /> },
-      { path: 'login', element: <LoginPage /> },
-      { path: 'register', element: <RegisterPage /> },
     ],
+  },
+  {
+    path: '/login',
+    element: <LoginPage />,
+  },
+  {
+    path: '/register',
+    element: <RegisterPage />,
+  },
+  {
+    path: '/auth/callback',
+    element: <AuthCallback />,
   },
 ])
 

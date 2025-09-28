@@ -80,7 +80,7 @@ npm install
 Create a `.env` file in the `backend` directory:
 ```env
 DATABASE_URL="file:./dev.db"
-JWT_SECRET="your-jwt-secret-key"
+JWT_ACCESS_SECRET="your-jwt-secret-key"
 OPENAI_API_KEY="your-openai-api-key"
 PORT=3000
 ```
@@ -98,7 +98,7 @@ npx prisma db push
 npm run dev
 ```
 
-This will start both the backend server (port 3000) and frontend development server (port 5173).
+This will start both the backend server (port 3000) and frontend development server (port 5174).
 
 ### Available Scripts
 

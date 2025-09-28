@@ -12,6 +12,7 @@ interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, displayName?: string) => Promise<void>
+  loginWithGoogle: () => void
   logout: () => void
   loading: boolean
 }
@@ -71,6 +72,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  const loginWithGoogle = () => {
+    window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/v1/auth/google`
+  }
+
   const logout = () => {
     localStorage.removeItem('token')
     setUser(null)
@@ -80,6 +85,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     user,
     login,
     register,
+    loginWithGoogle,
     logout,
     loading,
   }

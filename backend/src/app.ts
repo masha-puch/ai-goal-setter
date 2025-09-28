@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import passport from 'passport';
 import routes from './routes';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -13,6 +14,7 @@ const app = express();
 app.use(morgan('dev'));
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
+app.use(passport.initialize());
 
 const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5174';
 app.use(
