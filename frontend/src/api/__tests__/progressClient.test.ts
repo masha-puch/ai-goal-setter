@@ -8,7 +8,7 @@ const mockDelete = vi.fn()
 const mockRequestInterceptor = vi.fn()
 const mockResponseInterceptor = vi.fn()
 
-// Mock axios
+// Mock axios before any imports
 vi.mock('axios', () => ({
   default: {
     create: vi.fn(() => ({
@@ -429,7 +429,8 @@ describe('Progress API Client', () => {
         writable: true,
       })
 
-      // Import the client to trigger interceptor setup
+      // Clear module cache and re-import to trigger interceptor setup
+      vi.resetModules()
       await import('../client')
       expect(mockRequestInterceptor).toHaveBeenCalled()
     })
@@ -443,7 +444,8 @@ describe('Progress API Client', () => {
         writable: true,
       })
 
-      // Import the client to trigger interceptor setup
+      // Clear module cache and re-import to trigger interceptor setup
+      vi.resetModules()
       await import('../client')
       expect(mockRequestInterceptor).toHaveBeenCalled()
     })
@@ -467,7 +469,8 @@ describe('Progress API Client', () => {
         writable: true,
       })
 
-      // Import the client to trigger interceptor setup
+      // Clear module cache and re-import to trigger interceptor setup
+      vi.resetModules()
       await import('../client')
       expect(mockResponseInterceptor).toHaveBeenCalled()
     })

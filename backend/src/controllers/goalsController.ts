@@ -1,9 +1,10 @@
 import express from 'express';
 import { PrismaClient } from '../../generated/prisma';
+import type { AuthenticatedRequest } from '../middleware/authJwt';
 
 const prisma = new PrismaClient();
 
-export const createGoal = async (req: express.Request, res: express.Response) => {
+export const createGoal = async (req: AuthenticatedRequest, res: express.Response) => {
   try {
     const { title, description, category, priority, targetDate, milestones } = req.body;
     const userId = req.user?.id; // Assuming auth middleware sets req.user
@@ -31,7 +32,7 @@ export const createGoal = async (req: express.Request, res: express.Response) =>
   }
 };
 
-export const getGoals = async (req: express.Request, res: express.Response) => {
+export const getGoals = async (req: AuthenticatedRequest, res: express.Response) => {
   try {
     const userId = req.user?.id;
 
@@ -44,6 +45,14 @@ export const getGoals = async (req: express.Request, res: express.Response) => {
       orderBy: { createdAt: 'desc' },
     });
 
+    // Sort by status: in_progress, achieved, dropped
+    const statusOrder = { 'in_progress': 0, 'achieved': 1, 'dropped': 2 };
+    goals.sort((a, b) => {
+      const aOrder = statusOrder[a.status as keyof typeof statusOrder] ?? 0;
+      const bOrder = statusOrder[b.status as keyof typeof statusOrder] ?? 0;
+      return aOrder - bOrder;
+    });
+
     res.json({ items: goals, total: goals.length });
   } catch (error) {
     console.error('Error fetching goals:', error);
@@ -51,7 +60,7 @@ export const getGoals = async (req: express.Request, res: express.Response) => {
   }
 };
 
-export const updateGoal = async (req: express.Request, res: express.Response) => {
+export const updateGoal = async (req: AuthenticatedRequest, res: express.Response) => {
   try {
     const { goalId } = req.params;
     const { title, description, category, priority, targetDate, milestones, status } = req.body;
@@ -61,10 +70,13 @@ export const updateGoal = async (req: express.Request, res: express.Response) =>
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
+    if (!goalId) {
+      return res.status(400).json({ error: 'Goal ID is required' });
+    }
+
     const goal = await prisma.goal.update({
       where: { 
         id: goalId,
-        userId, // Ensure user can only update their own goals
       },
       data: {
         title,
@@ -84,7 +96,7 @@ export const updateGoal = async (req: express.Request, res: express.Response) =>
   }
 };
 
-export const deleteGoal = async (req: express.Request, res: express.Response) => {
+export const deleteGoal = async (req: AuthenticatedRequest, res: express.Response) => {
   try {
     const { goalId } = req.params;
     const userId = req.user?.id;
@@ -93,10 +105,13 @@ export const deleteGoal = async (req: express.Request, res: express.Response) =>
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
+    if (!goalId) {
+      return res.status(400).json({ error: 'Goal ID is required' });
+    }
+
     await prisma.goal.delete({
       where: { 
         id: goalId,
-        userId, // Ensure user can only delete their own goals
       },
     });
 

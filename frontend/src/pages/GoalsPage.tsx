@@ -35,21 +35,25 @@ export function GoalsPage() {
   }
 
 
-  const getStatusColor = (status: string) => {
+  const getCardStyle = (status: string) => {
     switch (status) {
-      case 'achieved': return 'green'
-      case 'in_progress': return 'yellow'
-      case 'dropped': return 'gray'
-      default: return 'gray'
+      case 'achieved': 
+        return { 
+          backgroundColor: 'rgba(45, 90, 45, 0.5)', 
+        }
+      default: 
+        return {}
     }
   }
 
-  const getStatusLabel = (status: string) => {
+  const getTextStyle = (status: string) => {
     switch (status) {
-      case 'achieved': return 'Achieved'
-      case 'in_progress': return 'In Progress'
-      case 'dropped': return 'Dropped'
-      default: return 'In Progress'
+      case 'achieved': 
+        return { textDecoration: 'line-through' }
+      case 'dropped': 
+        return { textDecoration: 'line-through' }
+      default: 
+        return {}
     }
   }
 
@@ -77,17 +81,14 @@ export function GoalsPage() {
 
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md" mt="lg">
         {(goals || []).map((g: any) => (
-          <Card key={g.id} withBorder>
-            <Title order={4}>{g.title}</Title>
+          <Card key={g.id} withBorder style={getCardStyle(g.status)}>
+            <Title order={4} style={getTextStyle(g.status)}>{g.title}</Title>
             {g.description && (
-              <Text size="sm" c="dimmed" mt="xs" style={{ whiteSpace: 'pre-wrap' }}>
+              <Text size="sm" c="dimmed" mt="xs" style={{ whiteSpace: 'pre-wrap', ...getTextStyle(g.status) }}>
                 {g.description}
               </Text>
             )}
-            <Text c="dimmed" mt="xs">{g.category || 'uncategorized'} • Priority: {g.priority ?? '-'}</Text>
-            <Text size="sm" c={getStatusColor(g.status)} fw={500} mt="xs">
-              Status: {getStatusLabel(g.status)}
-            </Text>
+            <Text c="dimmed" mt="xs" style={getTextStyle(g.status)}>{g.category || 'uncategorized'} • Priority: {g.priority ?? '-'}</Text>
             <Group mt="sm" gap="xs">
               {g.status !== 'achieved' && g.status !== 'dropped' && (
                 <>

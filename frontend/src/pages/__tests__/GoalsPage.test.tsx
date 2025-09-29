@@ -15,6 +15,10 @@ vi.mock('../../api/hooks', () => ({
     mutateAsync: vi.fn(),
     isPending: false,
   })),
+  useUpdateGoal: vi.fn(() => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  })),
   useDeleteGoal: vi.fn(() => ({
     mutate: vi.fn(),
     isPending: false,
@@ -61,7 +65,7 @@ describe('GoalsPage', () => {
     // Check for form elements using different approaches
     // Get all textbox elements (includes both TextInput and Select inputs)
     const textboxes = screen.getAllByRole('textbox')
-    expect(textboxes).toHaveLength(3) // Title, Category, Priority
+    expect(textboxes).toHaveLength(4) // Title, Category, Priority, Description
     
     // Find the actual TextInput (Title field) by checking for required attribute
     const titleInput = textboxes.find(input => input.hasAttribute('required'))

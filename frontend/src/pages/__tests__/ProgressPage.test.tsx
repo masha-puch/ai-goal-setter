@@ -389,6 +389,10 @@ describe('ProgressPage', () => {
       fireEvent.click(screen.getByRole('option', { name: 'quarterly' }))
       
       fireEvent.change(screen.getByRole('textbox', { name: /date/i }), { target: { value: '2024-01-01T00:00:00.000Z' } })
+      
+      // Mock console.error to prevent unhandled rejection from showing in test output
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      
       fireEvent.click(screen.getByRole('button', { name: 'Add' }))
 
       await waitFor(() => {
@@ -397,6 +401,9 @@ describe('ProgressPage', () => {
 
       // Form should still be functional after error
       expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument()
+      
+      // Restore console.error
+      consoleSpy.mockRestore()
     })
   })
 
