@@ -45,8 +45,8 @@ export const getGoals = async (req: AuthenticatedRequest, res: express.Response)
       orderBy: { createdAt: 'desc' },
     });
 
-    // Sort by status: in_progress, achieved, dropped
-    const statusOrder = { 'in_progress': 0, 'achieved': 1, 'dropped': 2 };
+    // Sort by status: in_progress, completed, dropped
+    const statusOrder = { 'in_progress': 0, 'completed': 1, 'dropped': 2 };
     goals.sort((a, b) => {
       const aOrder = statusOrder[a.status as keyof typeof statusOrder] ?? 0;
       const bOrder = statusOrder[b.status as keyof typeof statusOrder] ?? 0;

@@ -26,8 +26,8 @@ export function GoalsPage() {
     setPriority(null)
   }
 
-  const handleMarkAchieved = async (goalId: string) => {
-    await updateGoal.mutateAsync({ goalId, data: { status: 'achieved' } })
+  const handleMarkCompleted = async (goalId: string) => {
+    await updateGoal.mutateAsync({ goalId, data: { status: 'completed' } })
   }
 
   const handleMarkDropped = async (goalId: string) => {
@@ -37,9 +37,13 @@ export function GoalsPage() {
 
   const getCardStyle = (status: string) => {
     switch (status) {
-      case 'achieved': 
+      case 'completed': 
         return { 
           backgroundColor: 'rgba(45, 90, 45, 0.5)', 
+        }
+      case 'dropped': 
+        return { 
+          backgroundColor: 'rgba(100, 100, 100, 0.5)', 
         }
       default: 
         return {}
@@ -48,7 +52,7 @@ export function GoalsPage() {
 
   const getTextStyle = (status: string) => {
     switch (status) {
-      case 'achieved': 
+      case 'completed': 
         return { textDecoration: 'line-through' }
       case 'dropped': 
         return { textDecoration: 'line-through' }
@@ -88,18 +92,18 @@ export function GoalsPage() {
                 {g.description}
               </Text>
             )}
-            <Text c="dimmed" mt="xs" style={getTextStyle(g.status)}>{g.category || 'uncategorized'} • Priority: {g.priority ?? '-'}</Text>
+            <Text c="dimmed" mt="xs">{g.category} {g.status && g.priority && '•'} {g.priority === 1 ? 'High' : g.priority === 2 ? 'Medium' : g.priority === 3 ? 'Low' : g.priority}</Text>
             <Group mt="sm" gap="xs">
-              {g.status !== 'achieved' && g.status !== 'dropped' && (
+              {g.status !== 'completed' && g.status !== 'dropped' && (
                 <>
                   <Button 
                     color="green" 
                     variant="light" 
                     size="xs"
-                    onClick={() => handleMarkAchieved(g.id)}
+                    onClick={() => handleMarkCompleted(g.id)}
                     loading={updateGoal.isPending}
                   >
-                    Mark Achieved
+                    Complete
                   </Button>
                   <Button 
                     color="orange" 
@@ -108,7 +112,7 @@ export function GoalsPage() {
                     onClick={() => handleMarkDropped(g.id)}
                     loading={updateGoal.isPending}
                   >
-                    Mark Dropped
+                    Drop
                   </Button>
                 </>
               )}
