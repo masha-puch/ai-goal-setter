@@ -13,7 +13,7 @@ export const loginSchema = z.object({
 
 export const goalCreateSchema = z.object({
   title: z.string().min(1),
-  description: z.string().optional(),
+  description: z.string().max(2000).optional(),
   category: z.enum(['health', 'career', 'finance', 'learning', 'relationships', 'other']).optional(),
   priority: z.enum(['1', '2', '3']).transform((v) => Number(v)).optional().or(z.number().int().min(1).max(3).optional()),
   targetDate: z.string().datetime().optional(),

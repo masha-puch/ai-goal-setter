@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Card, Container, Group, Select, SimpleGrid, Text, TextInput, Title } from '@mantine/core'
+import { Button, Card, Container, Group, Select, SimpleGrid, Text, TextInput, Textarea, Title } from '@mantine/core'
 import { useCreateGoal, useDeleteGoal, useGoals, useUpdateGoal } from '../api/hooks'
 
 export function GoalsPage() {
@@ -8,13 +8,20 @@ export function GoalsPage() {
   const deleteGoal = useDeleteGoal()
   const updateGoal = useUpdateGoal()
   const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
   const [category, setCategory] = useState<string | null>(null)
   const [priority, setPriority] = useState<string | null>(null)
 
   const onAdd = async (e: React.FormEvent) => {
     e.preventDefault()
-    await createGoal.mutateAsync({ title, category, priority: priority ? Number(priority) : undefined })
+    await createGoal.mutateAsync({ 
+      title, 
+      description: description || undefined, 
+      category, 
+      priority: priority ? Number(priority) : undefined 
+    })
     setTitle('')
+    setDescription('')
     setCategory(null)
     setPriority(null)
   }
@@ -51,12 +58,20 @@ export function GoalsPage() {
       <Title order={2}>Goals</Title>
       <Card withBorder mt="md">
         <form onSubmit={onAdd}>
-          <Group align="end" wrap="wrap">
+          <Group align="end" wrap="wrap" mb="md">
             <TextInput label="Title" value={title} onChange={(e) => setTitle(e.currentTarget.value)} required w={280} />
             <Select label="Category" data={[ 'health','career','finance','learning','relationships','other' ]} value={category} onChange={setCategory} w={200} clearable />
             <Select label="Priority" data={[{value:'1',label:'High'},{value:'2',label:'Medium'},{value:'3',label:'Low'}]} value={priority} onChange={setPriority} w={160} clearable />
             <Button type="submit" loading={createGoal.isPending}>Add Goal</Button>
           </Group>
+          <Textarea 
+            label="Description" 
+            placeholder="Describe your goal in detail..." 
+            value={description} 
+            onChange={(e) => setDescription(e.currentTarget.value)} 
+            minRows={3}
+            maxRows={6}
+          />
         </form>
       </Card>
 
@@ -64,7 +79,12 @@ export function GoalsPage() {
         {(goals || []).map((g: any) => (
           <Card key={g.id} withBorder>
             <Title order={4}>{g.title}</Title>
-            <Text c="dimmed">{g.category || 'uncategorized'} • Priority: {g.priority ?? '-'}</Text>
+            {g.description && (
+              <Text size="sm" c="dimmed" mt="xs" style={{ whiteSpace: 'pre-wrap' }}>
+                {g.description}
+              </Text>
+            )}
+            <Text c="dimmed" mt="xs">{g.category || 'uncategorized'} • Priority: {g.priority ?? '-'}</Text>
             <Text size="sm" c={getStatusColor(g.status)} fw={500} mt="xs">
               Status: {getStatusLabel(g.status)}
             </Text>
