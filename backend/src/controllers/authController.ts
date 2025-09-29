@@ -35,16 +35,19 @@ passport.use(new GoogleStrategy({
     }
 
     // Check if user exists with this email
-    user = await prisma.user.findUnique({
-      where: { email: profile.emails?.[0]?.value }
-    });
+    const email = profile.emails?.[0]?.value;
+    if (email) {
+      user = await prisma.user.findUnique({
+        where: { email }
+      });
+    }
 
     if (user) {
       console.log('Found existing user by email, linking Google account:', user.email);
       // Link Google account to existing user
       user = await prisma.user.update({
         where: { id: user.id },
-        data: { googleId: profile.id, avatar: profile.photos?.[0]?.value }
+        data: { googleId: profile.id, avatar: profile.photos?.[0]?.value || null }
       });
       return done(null, user);
     }
@@ -56,7 +59,7 @@ passport.use(new GoogleStrategy({
         email: profile.emails?.[0]?.value!,
         displayName: profile.displayName,
         googleId: profile.id,
-        avatar: profile.photos?.[0]?.value
+        avatar: profile.photos?.[0]?.value || null
       }
     });
 
@@ -64,7 +67,7 @@ passport.use(new GoogleStrategy({
     return done(null, user);
   } catch (error) {
     console.error('Google OAuth strategy error:', error);
-    return done(error, null);
+    return done(error, undefined);
   }
 }));
 
@@ -92,7 +95,7 @@ export async function register(req: express.Request, res: express.Response) {
 
   const rounds = Number(process.env.BCRYPT_ROUNDS || 12);
   const passwordHash = await bcrypt.hash(password, rounds);
-  const user = await prisma.user.create({ data: { email, displayName, passwordHash } });
+  const user = await prisma.user.create({ data: { email, displayName: displayName || null, passwordHash } });
 
   const accessToken = signAccessToken(user.id);
   const refreshToken = signRefreshToken(user.id);
@@ -113,7 +116,7 @@ export async function login(req: express.Request, res: express.Response) {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return res.status(401).json({ error: { code: 'INVALID_CREDENTIALS', message: 'Invalid credentials' } });
 
-  const ok = await bcrypt.compare(password, user.passwordHash);
+  const ok = await bcrypt.compare(password, user.passwordHash || '');
   if (!ok) return res.status(401).json({ error: { code: 'INVALID_CREDENTIALS', message: 'Invalid credentials' } });
 
   const accessToken = signAccessToken(user.id);
