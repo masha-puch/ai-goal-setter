@@ -22,7 +22,7 @@ export const goalCreateSchema = z.object({
       z.object({ id: z.string().optional(), title: z.string(), done: z.boolean().default(false), dueDate: z.string().datetime().optional() })
     )
     .optional(),
-  status: z.enum(['not_started', 'in_progress', 'completed', 'paused', 'dropped']).optional(),
+  status: z.enum(['in_progress', 'dropped', 'achieved']).optional(),
 });
 
 export const goalPatchSchema = goalCreateSchema.partial();

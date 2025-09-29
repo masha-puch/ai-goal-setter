@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { Button, Card, Container, Group, Select, SimpleGrid, Text, TextInput, Title } from '@mantine/core'
-import { useCreateGoal, useDeleteGoal, useGoals } from '../api/hooks'
+import { useCreateGoal, useDeleteGoal, useGoals, useUpdateGoal } from '../api/hooks'
 
 export function GoalsPage() {
-  const { data: goals, isLoading } = useGoals()
+  const { data: goals } = useGoals()
   const createGoal = useCreateGoal()
   const deleteGoal = useDeleteGoal()
+  const updateGoal = useUpdateGoal()
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState<string | null>(null)
   const [priority, setPriority] = useState<string | null>(null)
@@ -16,6 +17,33 @@ export function GoalsPage() {
     setTitle('')
     setCategory(null)
     setPriority(null)
+  }
+
+  const handleMarkAchieved = async (goalId: string) => {
+    await updateGoal.mutateAsync({ goalId, data: { status: 'achieved' } })
+  }
+
+  const handleMarkDropped = async (goalId: string) => {
+    await updateGoal.mutateAsync({ goalId, data: { status: 'dropped' } })
+  }
+
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'achieved': return 'green'
+      case 'in_progress': return 'yellow'
+      case 'dropped': return 'gray'
+      default: return 'gray'
+    }
+  }
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'achieved': return 'Achieved'
+      case 'in_progress': return 'In Progress'
+      case 'dropped': return 'Dropped'
+      default: return 'In Progress'
+    }
   }
 
   return (
@@ -36,9 +64,42 @@ export function GoalsPage() {
         {(goals || []).map((g: any) => (
           <Card key={g.id} withBorder>
             <Title order={4}>{g.title}</Title>
-            <Text c="dimmed">{g.category || 'uncategorized'} • {g.priority ?? '-'}</Text>
-            <Group mt="sm">
-              <Button color="red" variant="light" onClick={() => deleteGoal.mutate(g.id)}>Delete</Button>
+            <Text c="dimmed">{g.category || 'uncategorized'} • Priority: {g.priority ?? '-'}</Text>
+            <Text size="sm" c={getStatusColor(g.status)} fw={500} mt="xs">
+              Status: {getStatusLabel(g.status)}
+            </Text>
+            <Group mt="sm" gap="xs">
+              {g.status !== 'achieved' && g.status !== 'dropped' && (
+                <>
+                  <Button 
+                    color="green" 
+                    variant="light" 
+                    size="xs"
+                    onClick={() => handleMarkAchieved(g.id)}
+                    loading={updateGoal.isPending}
+                  >
+                    Mark Achieved
+                  </Button>
+                  <Button 
+                    color="orange" 
+                    variant="light" 
+                    size="xs"
+                    onClick={() => handleMarkDropped(g.id)}
+                    loading={updateGoal.isPending}
+                  >
+                    Mark Dropped
+                  </Button>
+                </>
+              )}
+              <Button 
+                color="red" 
+                variant="light" 
+                size="xs"
+                onClick={() => deleteGoal.mutate(g.id)}
+                loading={deleteGoal.isPending}
+              >
+                Delete
+              </Button>
             </Group>
           </Card>
         ))}
