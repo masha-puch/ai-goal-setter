@@ -63,7 +63,7 @@ export const getGoals = async (req: AuthenticatedRequest, res: express.Response)
 export const updateGoal = async (req: AuthenticatedRequest, res: express.Response) => {
   try {
     const { goalId } = req.params;
-    const { title, description, category, priority, targetDate, milestones, status } = req.body;
+    const { title, description, category, priority, targetDate, milestones, status, completionNote } = req.body;
     const userId = req.user?.id;
 
     if (!userId) {
@@ -86,6 +86,7 @@ export const updateGoal = async (req: AuthenticatedRequest, res: express.Respons
         targetDate: targetDate ? new Date(targetDate) : null,
         milestones: milestones ? JSON.parse(milestones) : null,
         status,
+        completionNote,
       },
     });
 

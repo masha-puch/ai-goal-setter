@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { MantineProvider, ColorSchemeScript } from '@mantine/core'
+import { createTheme, MantineProvider, ColorSchemeScript } from '@mantine/core'
+import { ModalsProvider } from '@mantine/modals'
 import { Notifications } from '@mantine/notifications'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
@@ -52,16 +53,22 @@ const router = createBrowserRouter([
   },
 ])
 
+const theme = createTheme({
+  /** Add your theme customizations here */
+})
+
 function App() {
   return (
-    <MantineProvider defaultColorScheme="auto">
-      <Notifications position="top-right" />
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <RouterProvider router={router} />
-        </AuthProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
+    <MantineProvider theme={theme} defaultColorScheme="auto">
+      <ModalsProvider>
+        <Notifications position="top-right" />
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <RouterProvider router={router} />
+          </AuthProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+      </ModalsProvider>
     </MantineProvider>
   )
 }

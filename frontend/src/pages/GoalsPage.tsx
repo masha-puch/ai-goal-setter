@@ -1,16 +1,23 @@
 import { useState } from 'react'
 import { Button, Card, Container, Group, Select, SimpleGrid, Text, TextInput, Textarea, Title } from '@mantine/core'
-import { useCreateGoal, useDeleteGoal, useGoals, useUpdateGoal } from '../api/hooks'
+import { useCreateGoal, useDeleteGoal, useGoals, useCompleteGoal, useDropGoal } from '../api/hooks'
+import { GoalCompletionModal } from '../components/GoalCompletionModal'
 
 export function GoalsPage() {
   const { data: goals } = useGoals()
   const createGoal = useCreateGoal()
   const deleteGoal = useDeleteGoal()
-  const updateGoal = useUpdateGoal()
+  const completeGoal = useCompleteGoal()
+  const dropGoal = useDropGoal()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState<string | null>(null)
   const [priority, setPriority] = useState<string | null>(null)
+  
+  // Modal state
+  const [modalOpened, setModalOpened] = useState(false)
+  const [modalAction, setModalAction] = useState<'complete' | 'drop'>('complete')
+  const [selectedGoal, setSelectedGoal] = useState<{ id: string; title: string } | null>(null)
 
   const onAdd = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,12 +33,29 @@ export function GoalsPage() {
     setPriority(null)
   }
 
-  const handleMarkCompleted = async (goalId: string) => {
-    await updateGoal.mutateAsync({ goalId, data: { status: 'completed' } })
+  const handleMarkCompleted = (goalId: string, goalTitle: string) => {
+    setSelectedGoal({ id: goalId, title: goalTitle })
+    setModalAction('complete')
+    setModalOpened(true)
   }
 
-  const handleMarkDropped = async (goalId: string) => {
-    await updateGoal.mutateAsync({ goalId, data: { status: 'dropped' } })
+  const handleMarkDropped = (goalId: string, goalTitle: string) => {
+    setSelectedGoal({ id: goalId, title: goalTitle })
+    setModalAction('drop')
+    setModalOpened(true)
+  }
+
+  const handleModalConfirm = async (note: string) => {
+    if (!selectedGoal) return
+    
+    if (modalAction === 'complete') {
+      await completeGoal.mutateAsync({ goalId: selectedGoal.id, note })
+    } else {
+      await dropGoal.mutateAsync({ goalId: selectedGoal.id, note })
+    }
+    
+    setModalOpened(false)
+    setSelectedGoal(null)
   }
 
 
@@ -39,11 +63,11 @@ export function GoalsPage() {
     switch (status) {
       case 'completed': 
         return { 
-          backgroundColor: 'rgba(45, 90, 45, 0.5)', 
+          backgroundColor: 'rgba(45, 90, 45, 0.3)', 
         }
       case 'dropped': 
         return { 
-          backgroundColor: 'rgba(100, 100, 100, 0.5)', 
+          backgroundColor: 'rgba(100, 100, 100, 0.3)', 
         }
       default: 
         return {}
@@ -83,13 +107,18 @@ export function GoalsPage() {
         </form>
       </Card>
 
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md" mt="lg">
+      <SimpleGrid cols={1} spacing="md" mt="lg">
         {(goals || []).map((g: any) => (
           <Card key={g.id} withBorder style={getCardStyle(g.status)}>
-            <Title order={4} style={getTextStyle(g.status)}>{g.title}</Title>
+            <Title order={3} style={getTextStyle(g.status)}>{g.title}</Title>
             {g.description && (
-              <Text size="sm" c="dimmed" mt="xs" style={{ whiteSpace: 'pre-wrap', ...getTextStyle(g.status) }}>
+              <Text size="md" mt="md" style={{ whiteSpace: 'pre-wrap', ...getTextStyle(g.status) }}>
                 {g.description}
+              </Text>
+            )}
+            {g.completionNote && (
+              <Text size="sm" mt="md" c="dimmed" style={{ fontStyle: 'italic'}}>
+                <strong>Note:</strong> {g.completionNote}
               </Text>
             )}
             <Text c="dimmed" mt="xs">{g.category} {g.status && g.priority && '•'} {g.priority === 1 ? 'High' : g.priority === 2 ? 'Medium' : g.priority === 3 ? 'Low' : g.priority}</Text>
@@ -100,8 +129,8 @@ export function GoalsPage() {
                     color="green" 
                     variant="light" 
                     size="xs"
-                    onClick={() => handleMarkCompleted(g.id)}
-                    loading={updateGoal.isPending}
+                    onClick={() => handleMarkCompleted(g.id, g.title)}
+                    loading={completeGoal.isPending}
                   >
                     Complete
                   </Button>
@@ -109,8 +138,8 @@ export function GoalsPage() {
                     color="orange" 
                     variant="light" 
                     size="xs"
-                    onClick={() => handleMarkDropped(g.id)}
-                    loading={updateGoal.isPending}
+                    onClick={() => handleMarkDropped(g.id, g.title)}
+                    loading={dropGoal.isPending}
                   >
                     Drop
                   </Button>
@@ -129,6 +158,15 @@ export function GoalsPage() {
           </Card>
         ))}
       </SimpleGrid>
+
+      <GoalCompletionModal
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+        onConfirm={handleModalConfirm}
+        action={modalAction}
+        goalTitle={selectedGoal?.title || ''}
+        loading={completeGoal.isPending || dropGoal.isPending}
+      />
     </Container>
   )
 }

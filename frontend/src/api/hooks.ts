@@ -22,6 +22,24 @@ export function useUpdateGoal() {
   })
 }
 
+export function useCompleteGoal() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ goalId, note }: { goalId: string; note?: string }) => 
+      (await api.patch(`/goals/${goalId}`, { status: 'completed', completionNote: note })).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['goals'] }),
+  })
+}
+
+export function useDropGoal() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ goalId, note }: { goalId: string; note?: string }) => 
+      (await api.patch(`/goals/${goalId}`, { status: 'dropped', completionNote: note })).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['goals'] }),
+  })
+}
+
 export function useDeleteGoal() {
   const qc = useQueryClient()
   return useMutation({
