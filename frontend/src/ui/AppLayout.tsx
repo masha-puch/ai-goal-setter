@@ -1,14 +1,21 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { AppShell, Burger, Button, Group, Text, Title } from '@mantine/core'
+import { AppShell, Burger, Button, Group, Text, Title, ActionIcon, useMantineColorScheme, useComputedColorScheme } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { useEffect } from 'react'
+import { IconSun, IconMoon } from '@tabler/icons-react'
 
 export function AppLayout() {
   const { user, logout } = useAuth()
   const [opened, { toggle }] = useDisclosure()
   const location = useLocation()
   const navigate = useNavigate()
+  const { setColorScheme } = useMantineColorScheme()
+  const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
+
+  const toggleColorScheme = () => {
+    setColorScheme(computedColorScheme === 'dark' ? 'light' : 'dark')
+  }
 
   useEffect(() => {
     if (!user && !['/login', '/register'].includes(location.pathname)) {
@@ -29,6 +36,14 @@ export function AppLayout() {
             <Title order={3}><Link to="/">Smart Notebook</Link></Title>
           </Group>
           <Group>
+            <ActionIcon
+              onClick={toggleColorScheme}
+              variant="default"
+              size="lg"
+              aria-label="Toggle color scheme"
+            >
+              {computedColorScheme === 'dark' ? <IconSun size={20} /> : <IconMoon size={20} />}
+            </ActionIcon>
             {user ? (
               <>
                 <Text>Hi, {user.displayName || user.email}</Text>
