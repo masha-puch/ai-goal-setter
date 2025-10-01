@@ -74,6 +74,18 @@ export const updateGoal = async (req: AuthenticatedRequest, res: express.Respons
       return res.status(400).json({ error: 'Goal ID is required' });
     }
 
+    // Verify the goal belongs to the user
+    const existingGoal = await prisma.goal.findFirst({
+      where: {
+        id: goalId,
+        userId,
+      },
+    });
+
+    if (!existingGoal) {
+      return res.status(404).json({ error: 'Goal not found' });
+    }
+
     const goal = await prisma.goal.update({
       where: { 
         id: goalId,
@@ -108,6 +120,18 @@ export const deleteGoal = async (req: AuthenticatedRequest, res: express.Respons
 
     if (!goalId) {
       return res.status(400).json({ error: 'Goal ID is required' });
+    }
+
+    // Verify the goal belongs to the user
+    const existingGoal = await prisma.goal.findFirst({
+      where: {
+        id: goalId,
+        userId,
+      },
+    });
+
+    if (!existingGoal) {
+      return res.status(404).json({ error: 'Goal not found' });
     }
 
     await prisma.goal.delete({

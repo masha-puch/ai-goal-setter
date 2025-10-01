@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Button, Card, Container, Group, Select, SimpleGrid, Text, TextInput, Textarea, Title } from '@mantine/core'
-import { useCreateGoal, useDeleteGoal, useGoals, useCompleteGoal, useDropGoal } from '../api/hooks'
+import { useCreateGoal, useDeleteGoal, useGoals, useCompleteGoal, useDropGoal, useUpdateGoal } from '../api/hooks'
 import { GoalCompletionModal } from '../components/GoalCompletionModal'
+import { GoalEditModal } from '../components/GoalEditModal'
 
 export function GoalsPage() {
   const { data: goals } = useGoals()
@@ -9,15 +10,20 @@ export function GoalsPage() {
   const deleteGoal = useDeleteGoal()
   const completeGoal = useCompleteGoal()
   const dropGoal = useDropGoal()
+  const updateGoal = useUpdateGoal()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState<string | null>(null)
   const [priority, setPriority] = useState<string | null>(null)
   
-  // Modal state
+  // Completion modal state
   const [modalOpened, setModalOpened] = useState(false)
   const [modalAction, setModalAction] = useState<'complete' | 'drop'>('complete')
   const [selectedGoal, setSelectedGoal] = useState<{ id: string; title: string } | null>(null)
+
+  // Edit modal state
+  const [editModalOpened, setEditModalOpened] = useState(false)
+  const [editingGoal, setEditingGoal] = useState<any>(null)
 
   const onAdd = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -56,6 +62,23 @@ export function GoalsPage() {
     
     setModalOpened(false)
     setSelectedGoal(null)
+  }
+
+  const handleEditGoal = (goal: any) => {
+    setEditingGoal(goal)
+    setEditModalOpened(true)
+  }
+
+  const handleEditConfirm = async (data: any) => {
+    if (!editingGoal) return
+    
+    await updateGoal.mutateAsync({
+      goalId: editingGoal.id,
+      data,
+    })
+    
+    setEditModalOpened(false)
+    setEditingGoal(null)
   }
 
 
@@ -126,6 +149,15 @@ export function GoalsPage() {
               {g.status !== 'completed' && g.status !== 'dropped' && (
                 <>
                   <Button 
+                    color="blue" 
+                    variant="light" 
+                    size="xs"
+                    onClick={() => handleEditGoal(g)}
+                    loading={updateGoal.isPending}
+                  >
+                    Edit
+                  </Button>
+                  <Button 
                     color="green" 
                     variant="light" 
                     size="xs"
@@ -166,6 +198,14 @@ export function GoalsPage() {
         action={modalAction}
         goalTitle={selectedGoal?.title || ''}
         loading={completeGoal.isPending || dropGoal.isPending}
+      />
+
+      <GoalEditModal
+        opened={editModalOpened}
+        onClose={() => setEditModalOpened(false)}
+        onConfirm={handleEditConfirm}
+        goal={editingGoal}
+        loading={updateGoal.isPending}
       />
     </Container>
   )
