@@ -23,7 +23,7 @@ model User {
 
   goals        Goal[]
   progress     ProgressEntry[]
-  moodBoard    MoodBoardItem[]
+  moodBoards   MoodBoard[]
   reflections  Reflection[]
 }
 
@@ -60,16 +60,28 @@ model ProgressEntry {
   updatedAt     DateTime @updatedAt
 }
 
+model MoodBoard {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items       MoodBoardItem[]
+}
+
 model MoodBoardItem {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type      String
-  content   String
-  tags      Json?
-  position  Json?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String    @id @default(cuid())
+  moodBoardId String
+  moodBoard   MoodBoard @relation(fields: [moodBoardId], references: [id], onDelete: Cascade)
+  type        String
+  content     String
+  tags        Json?
+  position    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Reflection {

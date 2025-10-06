@@ -92,32 +92,97 @@ export function useDeleteProgress() {
   })
 }
 
-// Moodboard
-export function useMoodboard() {
-  return useQuery({ queryKey: ['moodboard'], queryFn: async () => (await api.get('/moodboard')).data.items as any[] })
+// Moodboards
+export function useMoodBoards() {
+  return useQuery({ queryKey: ['moodboards'], queryFn: async () => (await api.get('/moodboard')).data.items as any[] })
 }
 
-export function useCreateMoodItem() {
+export function useMoodBoard(moodBoardId: string | null) {
+  return useQuery({
+    queryKey: ['moodboards', moodBoardId],
+    queryFn: async () => (await api.get(`/moodboard/${moodBoardId}`)).data as any,
+    enabled: !!moodBoardId,
+  })
+}
+
+export function useCreateMoodBoard() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (data: any) => (await api.post('/moodboard', data)).data,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['moodboard'] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['moodboards'] }),
   })
 }
 
-export function useUpdateMoodItem() {
+export function useUpdateMoodBoard() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ itemId, data }: { itemId: string; data: any }) => (await api.patch(`/moodboard/${itemId}`, data)).data,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['moodboard'] }),
+    mutationFn: async ({ moodBoardId, data }: { moodBoardId: string; data: any }) => (await api.patch(`/moodboard/${moodBoardId}`, data)).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['moodboards'] }),
   })
 }
 
-export function useDeleteMoodItem() {
+export function useDeleteMoodBoard() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (itemId: string) => (await api.delete(`/moodboard/${itemId}`)).data,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['moodboard'] }),
+    mutationFn: async (moodBoardId: string) => (await api.delete(`/moodboard/${moodBoardId}`)).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['moodboards'] }),
+  })
+}
+
+// MoodBoard Items
+export function useMoodBoardItems(moodBoardId: string | null) {
+  return useQuery({
+    queryKey: ['moodboards', moodBoardId, 'items'],
+    queryFn: async () => (await api.get(`/moodboard/${moodBoardId}/items`)).data.items as any[],
+    enabled: !!moodBoardId,
+  })
+}
+
+export function useCreateMoodBoardItem(moodBoardId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (data: any) => {
+      if (!moodBoardId) throw new Error('MoodBoard ID is required')
+      return (await api.post(`/moodboard/${moodBoardId}/items`, data)).data
+    },
+    onSuccess: () => {
+      if (moodBoardId) {
+        qc.invalidateQueries({ queryKey: ['moodboards', moodBoardId, 'items'] })
+        qc.invalidateQueries({ queryKey: ['moodboards', moodBoardId] })
+        qc.invalidateQueries({ queryKey: ['moodboards'] })
+      }
+    },
+  })
+}
+
+export function useUpdateMoodBoardItem(moodBoardId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ itemId, data }: { itemId: string; data: any }) => {
+      if (!moodBoardId) throw new Error('MoodBoard ID is required')
+      return (await api.patch(`/moodboard/${moodBoardId}/items/${itemId}`, data)).data
+    },
+    onSuccess: () => {
+      // Refetch in background to sync with server
+      qc.invalidateQueries({ queryKey: ['moodboards'] })
+    },
+  })
+}
+
+export function useDeleteMoodBoardItem(moodBoardId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (itemId: string) => {
+      if (!moodBoardId) throw new Error('MoodBoard ID is required')
+      return (await api.delete(`/moodboard/${moodBoardId}/items/${itemId}`)).data
+    },
+    onSuccess: () => {
+      if (moodBoardId) {
+        qc.invalidateQueries({ queryKey: ['moodboards', moodBoardId, 'items'] })
+        qc.invalidateQueries({ queryKey: ['moodboards', moodBoardId] })
+        qc.invalidateQueries({ queryKey: ['moodboards'] })
+      }
+    },
   })
 }
 
