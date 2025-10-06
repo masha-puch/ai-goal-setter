@@ -48,6 +48,7 @@ export function DraggableItem({ item, onDelete, onResize, onBringForward, onSend
     zIndex: isDragging || isResizing ? 1000 : baseZIndex,
     opacity: isDragging ? 0.8 : 1,
     transition: isDragging || isResizing ? 'none' : 'opacity 0.2s',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   }
 
   const handleResizeStart = (e: React.MouseEvent) => {
