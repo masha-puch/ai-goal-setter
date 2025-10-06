@@ -75,6 +75,7 @@ export function MoodboardPage() {
     getRandomPosition,
     handleAddItem,
     handleDragEnd,
+    handleResize,
   } = useMoodboardItems(moodBoards, selectedMoodBoardId, createItem, updateItem)
 
   const {
@@ -236,6 +237,7 @@ export function MoodboardPage() {
                   localPositions={localPositions}
                   onDragEnd={handleDragEnd}
                   onDeleteItem={(id) => deleteItem.mutate(id)}
+                  onResize={handleResize}
                 />
               </Stack>
             </Tabs.Panel>

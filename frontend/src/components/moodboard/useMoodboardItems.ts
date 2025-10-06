@@ -84,6 +84,31 @@ export function useMoodboardItems(
     })
   }
 
+  const handleResize = (itemId: string, newSize: { width: number; height: number }) => {
+    const currentBoard = moodBoards?.find((mb: MoodBoard) => mb.id === selectedMoodBoardId)
+    const item = currentBoard?.items?.find((it: MoodBoardItem) => it.id === itemId)
+    
+    if (!item || !selectedMoodBoardId) return
+    
+    const currentPos = localPositions[itemId] || item.position || { x: 0, y: 0, width: 250, height: 250 }
+    const newPosition = {
+      x: currentPos.x,  // Explicitly preserve x position
+      y: currentPos.y,  // Explicitly preserve y position
+      width: newSize.width,
+      height: newSize.height,
+    }
+    
+    setLocalPositions(prev => ({
+      ...prev,
+      [itemId]: newPosition
+    }))
+    
+    updateItem.mutate({
+      itemId,
+      data: { position: newPosition }
+    })
+  }
+
   return {
     localPositions,
     setLocalPositions,
@@ -91,6 +116,7 @@ export function useMoodboardItems(
     getRandomPosition,
     handleAddItem,
     handleDragEnd,
+    handleResize,
   }
 }
 

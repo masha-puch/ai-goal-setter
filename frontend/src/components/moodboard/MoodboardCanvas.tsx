@@ -16,9 +16,10 @@ interface MoodboardCanvasProps {
   localPositions: Record<string, { x: number; y: number; width: number; height: number }>
   onDragEnd: (event: DragEndEvent) => void
   onDeleteItem: (id: string) => void
+  onResize?: (id: string, size: { width: number; height: number }) => void
 }
 
-export function MoodboardCanvas({ items, localPositions, onDragEnd, onDeleteItem }: MoodboardCanvasProps) {
+export function MoodboardCanvas({ items, localPositions, onDragEnd, onDeleteItem, onResize }: MoodboardCanvasProps) {
   const theme = useMantineTheme()
   const { colorScheme } = useMantineColorScheme()
 
@@ -64,6 +65,7 @@ export function MoodboardCanvas({ items, localPositions, onDragEnd, onDeleteItem
             item={item}
             localPosition={localPositions[item.id]}
             onDelete={onDeleteItem}
+            onResize={onResize}
           />
         ))}
       </Box>
