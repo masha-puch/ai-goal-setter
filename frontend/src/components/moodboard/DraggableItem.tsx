@@ -28,17 +28,21 @@ export function DraggableItem({ item, onDelete, onResize, onBringForward, onSend
   })
 
   const [isResizing, setIsResizing] = useState(false)
+  const [tempSize, setTempSize] = useState<{ width: number; height: number } | null>(null)
   const resizeStartRef = useRef<{ width: number; height: number; startX: number; startY: number } | null>(null)
 
   const position = localPosition || item.position || { x: 0, y: 0, width: 250, height: 250, zIndex: 1 }
   const baseZIndex = position.zIndex ?? 1
   
+  // Use temporary size during resize for smooth UI, otherwise use actual position
+  const displaySize = tempSize || { width: position.width, height: position.height }
+  
   const style = {
     position: 'absolute' as const,
     left: position.x,
     top: position.y,
-    width: position.width,
-    height: position.height,
+    width: displaySize.width,
+    height: displaySize.height,
     transform: (transform && !isResizing) ? CSS.Translate.toString(transform) : undefined,
     cursor: isDragging ? 'grabbing' : 'grab',
     zIndex: isDragging || isResizing ? 1000 : baseZIndex,
@@ -61,7 +65,7 @@ export function DraggableItem({ item, onDelete, onResize, onBringForward, onSend
     }
 
     const handleMouseMove = (moveEvent: MouseEvent) => {
-      if (!resizeStartRef.current || !onResize) return
+      if (!resizeStartRef.current) return
       
       const deltaX = moveEvent.clientX - resizeStartRef.current.startX
       const deltaY = moveEvent.clientY - resizeStartRef.current.startY
@@ -69,11 +73,25 @@ export function DraggableItem({ item, onDelete, onResize, onBringForward, onSend
       const newWidth = Math.max(100, resizeStartRef.current.width + deltaX)
       const newHeight = Math.max(100, resizeStartRef.current.height + deltaY)
       
-      onResize(item.id, { width: newWidth, height: newHeight })
+      // Update local state only for smooth UI during resize
+      setTempSize({ width: newWidth, height: newHeight })
     }
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (upEvent: MouseEvent) => {
       setIsResizing(false)
+      
+      // Calculate final size and send to server when resize is finished
+      if (resizeStartRef.current && onResize) {
+        const deltaX = upEvent.clientX - resizeStartRef.current.startX
+        const deltaY = upEvent.clientY - resizeStartRef.current.startY
+        
+        const finalWidth = Math.max(100, resizeStartRef.current.width + deltaX)
+        const finalHeight = Math.max(100, resizeStartRef.current.height + deltaY)
+        
+        onResize(item.id, { width: finalWidth, height: finalHeight })
+      }
+      
+      setTempSize(null)
       resizeStartRef.current = null
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
