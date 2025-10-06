@@ -19,9 +19,10 @@ interface MoodboardCanvasProps {
   onResize?: (id: string, size: { width: number; height: number }) => void
   onBringForward?: (id: string) => void
   onSendBackward?: (id: string) => void
+  mode?: 'edit' | 'read'
 }
 
-export function MoodboardCanvas({ items, localPositions, onDragEnd, onDeleteItem, onResize, onBringForward, onSendBackward }: MoodboardCanvasProps) {
+export function MoodboardCanvas({ items, localPositions, onDragEnd, onDeleteItem, onResize, onBringForward, onSendBackward, mode = 'edit' }: MoodboardCanvasProps) {
   const theme = useMantineTheme()
   const { colorScheme } = useMantineColorScheme()
 
@@ -43,37 +44,47 @@ export function MoodboardCanvas({ items, localPositions, onDragEnd, onDeleteItem
     )
   }
 
-  return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={onDragEnd}
+  const canvasContent = (
+    <Box
+      style={{
+        position: 'relative',
+        width: '100%',
+        flex: 1,
+        minHeight: 0,
+        backgroundColor: colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
+        borderRadius: '12px',
+        border: `1px dashed ${colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2]}`,
+        padding: '20px',
+      }}
     >
-      <Box
-        style={{
-          position: 'relative',
-          width: '100%',
-          flex: 1,
-          minHeight: 0,
-          backgroundColor: colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
-          borderRadius: '12px',
-          border: `1px dashed ${colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2]}`,
-          padding: '20px',
-        }}
-      >
-        {items.map((item: MoodBoardItem) => (
-          <DraggableItem
-            key={item.id}
-            item={item}
-            localPosition={localPositions[item.id]}
-            onDelete={onDeleteItem}
-            onResize={onResize}
-            onBringForward={onBringForward}
-            onSendBackward={onSendBackward}
-          />
-        ))}
-      </Box>
-    </DndContext>
+      {items.map((item: MoodBoardItem) => (
+        <DraggableItem
+          key={item.id}
+          item={item}
+          localPosition={localPositions[item.id]}
+          onDelete={onDeleteItem}
+          onResize={onResize}
+          onBringForward={onBringForward}
+          onSendBackward={onSendBackward}
+          mode={mode}
+        />
+      ))}
+    </Box>
   )
+
+  // Only wrap in DndContext if in edit mode
+  if (mode === 'edit') {
+    return (
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={onDragEnd}
+      >
+        {canvasContent}
+      </DndContext>
+    )
+  }
+
+  return canvasContent
 }
 

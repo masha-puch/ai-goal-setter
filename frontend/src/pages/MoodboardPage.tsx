@@ -63,6 +63,7 @@ export function MoodboardPage() {
   const [newBoardTitle, setNewBoardTitle] = useState('')
   const [newBoardDescription, setNewBoardDescription] = useState('')
   const [editingBoard, setEditingBoard] = useState<MoodBoard | null>(null)
+  const [mode, setMode] = useState<'edit' | 'read'>('edit')
 
   const createItem = useCreateMoodBoardItem(selectedMoodBoardId || '')
   const deleteItem = useDeleteMoodBoardItem(selectedMoodBoardId || '')
@@ -226,6 +227,8 @@ export function MoodboardPage() {
                   board={board}
                   onEdit={openEditModal}
                   onDelete={handleDeleteMoodBoard}
+                  mode={mode}
+                  onModeChange={setMode}
                 />
 
                 <AddItemForm 
@@ -242,6 +245,7 @@ export function MoodboardPage() {
                   onResize={handleResize}
                   onBringForward={handleBringForward}
                   onSendBackward={handleSendBackward}
+                  mode={mode}
                 />
               </Stack>
             </Tabs.Panel>

@@ -20,11 +20,13 @@ interface DraggableItemProps {
   onBringForward?: (id: string) => void
   onSendBackward?: (id: string) => void
   localPosition?: { x: number; y: number; width: number; height: number; zIndex?: number }
+  mode?: 'edit' | 'read'
 }
 
-export function DraggableItem({ item, onDelete, onResize, onBringForward, onSendBackward, localPosition }: DraggableItemProps) {
+export function DraggableItem({ item, onDelete, onResize, onBringForward, onSendBackward, localPosition, mode = 'edit' }: DraggableItemProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: item.id,
+    disabled: mode === 'read',
   })
 
   const [isResizing, setIsResizing] = useState(false)
@@ -43,12 +45,12 @@ export function DraggableItem({ item, onDelete, onResize, onBringForward, onSend
     top: position.y,
     width: displaySize.width,
     height: displaySize.height,
-    transform: (transform && !isResizing) ? CSS.Translate.toString(transform) : undefined,
-    cursor: isDragging ? 'grabbing' : 'grab',
-    zIndex: isDragging || isResizing ? 1000 : baseZIndex,
-    opacity: isDragging ? 0.8 : 1,
-    transition: isDragging || isResizing ? 'none' : 'opacity 0.2s',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    transform: (transform && !isResizing && mode === 'edit') ? CSS.Translate.toString(transform) : undefined,
+    cursor: mode === 'read' ? 'default' : (isDragging ? 'grabbing' : 'grab'),
+    zIndex: (isDragging || isResizing) && mode === 'edit' ? 1000 : baseZIndex,
+    opacity: isDragging && mode === 'edit' ? 0.8 : 1,
+    transition: (isDragging || isResizing) && mode === 'edit' ? 'none' : 'opacity 0.2s',
+    backgroundColor: mode === 'read' ? 'transparent' : 'rgba(255, 255, 255, 0.1)',
   }
 
   const handleResizeStart = (e: React.MouseEvent) => {
@@ -102,6 +104,35 @@ export function DraggableItem({ item, onDelete, onResize, onBringForward, onSend
     document.addEventListener('mouseup', handleMouseUp)
   }
 
+  // Read mode: show only the image without any UI
+  // Match the exact same padding and spacing as edit mode for consistent image sizing and position
+  if (mode === 'read') {
+    return (
+      <div ref={setNodeRef} style={style}>
+        <div style={{ 
+          padding: '12px', // Match Card padding="xs" (12px)
+          height: '100%',
+          width: '100%',
+        }}>
+          <div style={{ marginBottom: '8px', height: '30px' }} /> {/* Spacer to match header height */}
+          <img
+            src={item.content}
+            alt="mood"
+            style={{
+              width: '100%',
+              height: 'calc(100% - 40px)', // Match edit mode image height
+              objectFit: 'contain',
+              borderRadius: 8,
+              userSelect: 'none',
+              pointerEvents: 'none',
+            }}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  // Edit mode: full functionality with Card, badges, buttons, and resize
   return (
     <Card
       ref={setNodeRef}
