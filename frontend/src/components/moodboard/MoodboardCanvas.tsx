@@ -7,19 +7,21 @@ interface MoodBoardItem {
   type: string
   content: string
   tags?: any
-  position?: { x: number; y: number; width: number; height: number }
+  position?: { x: number; y: number; width: number; height: number; zIndex?: number }
   createdAt: string
 }
 
 interface MoodboardCanvasProps {
   items?: MoodBoardItem[]
-  localPositions: Record<string, { x: number; y: number; width: number; height: number }>
+  localPositions: Record<string, { x: number; y: number; width: number; height: number; zIndex?: number }>
   onDragEnd: (event: DragEndEvent) => void
   onDeleteItem: (id: string) => void
   onResize?: (id: string, size: { width: number; height: number }) => void
+  onBringForward?: (id: string) => void
+  onSendBackward?: (id: string) => void
 }
 
-export function MoodboardCanvas({ items, localPositions, onDragEnd, onDeleteItem, onResize }: MoodboardCanvasProps) {
+export function MoodboardCanvas({ items, localPositions, onDragEnd, onDeleteItem, onResize, onBringForward, onSendBackward }: MoodboardCanvasProps) {
   const theme = useMantineTheme()
   const { colorScheme } = useMantineColorScheme()
 
@@ -66,6 +68,8 @@ export function MoodboardCanvas({ items, localPositions, onDragEnd, onDeleteItem
             localPosition={localPositions[item.id]}
             onDelete={onDeleteItem}
             onResize={onResize}
+            onBringForward={onBringForward}
+            onSendBackward={onSendBackward}
           />
         ))}
       </Box>

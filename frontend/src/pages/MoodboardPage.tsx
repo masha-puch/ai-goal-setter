@@ -45,7 +45,7 @@ interface MoodBoardItem {
   type: string
   content: string
   tags?: any
-  position?: { x: number; y: number; width: number; height: number }
+  position?: { x: number; y: number; width: number; height: number; zIndex?: number }
   createdAt: string
 }
 
@@ -76,6 +76,8 @@ export function MoodboardPage() {
     handleAddItem,
     handleDragEnd,
     handleResize,
+    handleBringForward,
+    handleSendBackward,
   } = useMoodboardItems(moodBoards, selectedMoodBoardId, createItem, updateItem)
 
   const {
@@ -238,6 +240,8 @@ export function MoodboardPage() {
                   onDragEnd={handleDragEnd}
                   onDeleteItem={(id) => deleteItem.mutate(id)}
                   onResize={handleResize}
+                  onBringForward={handleBringForward}
+                  onSendBackward={handleSendBackward}
                 />
               </Stack>
             </Tabs.Panel>

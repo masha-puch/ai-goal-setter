@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { Card, Group, Badge, ActionIcon } from '@mantine/core'
-import { IconX } from '@tabler/icons-react'
+import { IconX, IconArrowUp, IconArrowDown } from '@tabler/icons-react'
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 
@@ -9,7 +9,7 @@ interface MoodBoardItem {
   type: string
   content: string
   tags?: any
-  position?: { x: number; y: number; width: number; height: number }
+  position?: { x: number; y: number; width: number; height: number; zIndex?: number }
   createdAt: string
 }
 
@@ -17,10 +17,12 @@ interface DraggableItemProps {
   item: MoodBoardItem
   onDelete: (id: string) => void
   onResize?: (id: string, size: { width: number; height: number }) => void
-  localPosition?: { x: number; y: number; width: number; height: number }
+  onBringForward?: (id: string) => void
+  onSendBackward?: (id: string) => void
+  localPosition?: { x: number; y: number; width: number; height: number; zIndex?: number }
 }
 
-export function DraggableItem({ item, onDelete, onResize, localPosition }: DraggableItemProps) {
+export function DraggableItem({ item, onDelete, onResize, onBringForward, onSendBackward, localPosition }: DraggableItemProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: item.id,
   })
@@ -28,7 +30,8 @@ export function DraggableItem({ item, onDelete, onResize, localPosition }: Dragg
   const [isResizing, setIsResizing] = useState(false)
   const resizeStartRef = useRef<{ width: number; height: number; startX: number; startY: number } | null>(null)
 
-  const position = localPosition || item.position || { x: 0, y: 0, width: 250, height: 250 }
+  const position = localPosition || item.position || { x: 0, y: 0, width: 250, height: 250, zIndex: 1 }
+  const baseZIndex = position.zIndex ?? 1
   
   const style = {
     position: 'absolute' as const,
@@ -38,7 +41,7 @@ export function DraggableItem({ item, onDelete, onResize, localPosition }: Dragg
     height: position.height,
     transform: (transform && !isResizing) ? CSS.Translate.toString(transform) : undefined,
     cursor: isDragging ? 'grabbing' : 'grab',
-    zIndex: isDragging || isResizing ? 1000 : 1,
+    zIndex: isDragging || isResizing ? 1000 : baseZIndex,
     opacity: isDragging ? 0.8 : 1,
     transition: isDragging || isResizing ? 'none' : 'opacity 0.2s',
   }
@@ -90,20 +93,56 @@ export function DraggableItem({ item, onDelete, onResize, localPosition }: Dragg
       padding="xs"
     >
       <Group justify="space-between" mb="xs" {...listeners} style={{ cursor: 'grab' }}>
-        <Badge variant="light" size="sm">
-          {item.type === 'image_url' ? 'URL' : 'Upload'}
-        </Badge>
-        <ActionIcon
-          color="red"
-          variant="subtle"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation()
-            onDelete(item.id)
-          }}
-        >
-          <IconX size={14} />
-        </ActionIcon>
+        <Group gap={6}>
+          <Badge variant="light" size="sm">
+            {item.type === 'image_url' ? 'URL' : 'Upload'}
+          </Badge>
+          <Badge variant="filled" size="sm" color="gray">
+            Layer {baseZIndex}
+          </Badge>
+        </Group>
+        <Group gap={4}>
+          {onBringForward && (
+            <ActionIcon
+              color="blue"
+              variant="subtle"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation()
+                onBringForward(item.id)
+              }}
+              title="Bring forward"
+            >
+              <IconArrowUp size={14} />
+            </ActionIcon>
+          )}
+          {onSendBackward && (
+            <ActionIcon
+              color="blue"
+              variant="subtle"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation()
+                onSendBackward(item.id)
+              }}
+              title="Send backward"
+            >
+              <IconArrowDown size={14} />
+            </ActionIcon>
+          )}
+          <ActionIcon
+            color="red"
+            variant="subtle"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation()
+              onDelete(item.id)
+            }}
+            title="Delete"
+          >
+            <IconX size={14} />
+          </ActionIcon>
+        </Group>
       </Group>
       <img
         src={item.content}
