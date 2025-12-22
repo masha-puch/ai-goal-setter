@@ -1,14 +1,19 @@
 import { useMemo, useState } from 'react'
 import { Button, Card, Container, Group, NumberInput, Select, Table, TextInput, Title } from '@mantine/core'
 import { useCreateProgress, useGoals, useAllProgress } from '../api/hooks'
+import { useYear } from '../context/YearContext'
 
 export function ProgressPage() {
-  const { data: goals } = useGoals()
+  const { year } = useYear()
+  const { data: goals } = useGoals(year)
   const [goalId, setGoalId] = useState<string | null>(null)
-  const { data: entries } = useAllProgress()
+  const { data: entries } = useAllProgress(year)
   const createProgress = useCreateProgress(goalId || '')
 
-  const goalOptions = useMemo(() => (goals || []).map((g: any) => ({ value: g.id, label: g.title })), [goals])
+  const goalOptions = useMemo(() => (goals || []).map((g: any) => ({ 
+    value: g.id, 
+    label: g.description.length > 50 ? g.description.substring(0, 50) + '...' : g.description 
+  })), [goals])
 
   const [period, setPeriod] = useState('monthly')
   const [date, setDate] = useState<string>(new Date().toISOString())
@@ -57,7 +62,7 @@ export function ProgressPage() {
           <Table.Tbody>
             {(entries || []).map((e: any) => (
               <Table.Tr key={e.id}>
-                <Table.Td>{e.goal?.title || 'Unknown Goal'}</Table.Td>
+                <Table.Td>{e.goal?.description || 'Unknown Goal'}</Table.Td>
                 <Table.Td>{new Date(e.date).toLocaleDateString()}</Table.Td>
                 <Table.Td>{e.period}</Table.Td>
                 <Table.Td>{e.progressValue ?? '-'}</Table.Td>

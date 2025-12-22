@@ -1,52 +1,42 @@
 import { useState } from 'react'
-import { Button, Card, Container, Group, Select, SimpleGrid, Text, TextInput, Textarea, Title } from '@mantine/core'
+import { Button, Card, Container, Group, SimpleGrid, Text, Title } from '@mantine/core'
 import { useCreateGoal, useDeleteGoal, useGoals, useCompleteGoal, useDropGoal, useUpdateGoal } from '../api/hooks'
+import { useYear } from '../context/YearContext'
 import { GoalCompletionModal } from '../components/GoalCompletionModal'
 import { GoalEditModal } from '../components/GoalEditModal'
 
 export function GoalsPage() {
-  const { data: goals } = useGoals()
+  const { year } = useYear()
+  const { data: goals } = useGoals(year)
   const createGoal = useCreateGoal()
   const deleteGoal = useDeleteGoal()
   const completeGoal = useCompleteGoal()
   const dropGoal = useDropGoal()
   const updateGoal = useUpdateGoal()
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [category, setCategory] = useState<string | null>(null)
-  const [priority, setPriority] = useState<string | null>(null)
+  const currentYear = new Date().getFullYear()
   
   // Completion modal state
   const [modalOpened, setModalOpened] = useState(false)
   const [modalAction, setModalAction] = useState<'complete' | 'drop'>('complete')
-  const [selectedGoal, setSelectedGoal] = useState<{ id: string; title: string } | null>(null)
+  const [selectedGoal, setSelectedGoal] = useState<{ id: string; description: string } | null>(null)
 
   // Edit modal state
   const [editModalOpened, setEditModalOpened] = useState(false)
   const [editingGoal, setEditingGoal] = useState<any>(null)
 
-  const onAdd = async (e: React.FormEvent) => {
-    e.preventDefault()
-    await createGoal.mutateAsync({ 
-      title, 
-      description: description || undefined, 
-      category, 
-      priority: priority ? Number(priority) : undefined 
-    })
-    setTitle('')
-    setDescription('')
-    setCategory(null)
-    setPriority(null)
+  const handleAddGoal = () => {
+    setEditingGoal(null)
+    setEditModalOpened(true)
   }
 
-  const handleMarkCompleted = (goalId: string, goalTitle: string) => {
-    setSelectedGoal({ id: goalId, title: goalTitle })
+  const handleMarkCompleted = (goalId: string, goalDescription: string) => {
+    setSelectedGoal({ id: goalId, description: goalDescription })
     setModalAction('complete')
     setModalOpened(true)
   }
 
-  const handleMarkDropped = (goalId: string, goalTitle: string) => {
-    setSelectedGoal({ id: goalId, title: goalTitle })
+  const handleMarkDropped = (goalId: string, goalDescription: string) => {
+    setSelectedGoal({ id: goalId, description: goalDescription })
     setModalAction('drop')
     setModalOpened(true)
   }
@@ -70,15 +60,39 @@ export function GoalsPage() {
   }
 
   const handleEditConfirm = async (data: any) => {
-    if (!editingGoal) return
-    
-    await updateGoal.mutateAsync({
-      goalId: editingGoal.id,
-      data,
-    })
+    if (editingGoal) {
+      // Editing existing goal
+      await updateGoal.mutateAsync({
+        goalId: editingGoal.id,
+        data,
+      })
+    } else {
+      // Creating new goal
+      // Prevent creating goals in past years
+      if (year < currentYear) {
+        return
+      }
+      
+      await createGoal.mutateAsync({
+        description: data.description,
+        category: data.category,
+        priority: data.priority,
+        year,
+      })
+    }
     
     setEditModalOpened(false)
     setEditingGoal(null)
+  }
+
+  const handleMoveToNextYear = async (goal: any) => {
+    const goalYear = goal.year || currentYear
+    const nextYear = goalYear + 1
+    
+    await updateGoal.mutateAsync({
+      goalId: goal.id,
+      data: { year: nextYear },
+    })
   }
 
 
@@ -108,37 +122,33 @@ export function GoalsPage() {
     }
   }
 
+  const isPastYear = year < currentYear
+
   return (
     <Container size="lg" my="md">
-      <Title order={2}>Goals</Title>
-      <Card withBorder mt="md">
-        <form onSubmit={onAdd}>
-          <Group align="end" wrap="wrap" mb="md">
-            <TextInput label="Title" value={title} onChange={(e) => setTitle(e.currentTarget.value)} required w={280} />
-            <Select label="Category" data={[ 'health','career','finance','learning','relationships','other' ]} value={category} onChange={setCategory} w={200} clearable />
-            <Select label="Priority" data={[{value:'1',label:'High'},{value:'2',label:'Medium'},{value:'3',label:'Low'}]} value={priority} onChange={setPriority} w={160} clearable />
-            <Button type="submit" loading={createGoal.isPending}>Add Goal</Button>
-          </Group>
-          <Textarea 
-            label="Description" 
-            placeholder="Describe your goal in detail..." 
-            value={description} 
-            onChange={(e) => setDescription(e.currentTarget.value)} 
-            minRows={3}
-            maxRows={6}
-          />
-        </form>
-      </Card>
+      <Group justify="space-between" align="center" mb="md">
+        <Title order={2}>Goals</Title>
+        <Button 
+          onClick={handleAddGoal} 
+          disabled={isPastYear}
+          loading={createGoal.isPending}
+        >
+          Add Goal
+        </Button>
+      </Group>
+      
+      {isPastYear && (
+        <Text c="dimmed" mb="md" size="sm">
+          Cannot add new goals to past years. Switch to current or future year to create goals.
+        </Text>
+      )}
 
       <SimpleGrid cols={1} spacing="md" mt="lg">
         {(goals || []).map((g: any) => (
           <Card key={g.id} withBorder style={getCardStyle(g.status)}>
-            <Title order={3} style={getTextStyle(g.status)}>{g.title}</Title>
-            {g.description && (
-              <Text size="md" mt="md" style={{ whiteSpace: 'pre-wrap', ...getTextStyle(g.status) }}>
-                {g.description}
-              </Text>
-            )}
+            <Text size="md" style={{ whiteSpace: 'pre-wrap', ...getTextStyle(g.status) }}>
+              {g.description}
+            </Text>
             {g.completionNote && (
               <Text size="sm" mt="md" c="dimmed" style={{ fontStyle: 'italic'}}>
                 <strong>Note:</strong> {g.completionNote}
@@ -148,20 +158,22 @@ export function GoalsPage() {
             <Group mt="sm" gap="xs">
               {g.status !== 'completed' && g.status !== 'dropped' && (
                 <>
-                  <Button 
-                    color="blue" 
-                    variant="light" 
-                    size="xs"
-                    onClick={() => handleEditGoal(g)}
-                    loading={updateGoal.isPending}
-                  >
-                    Edit
-                  </Button>
+                  {(g.year || currentYear) >= currentYear && (
+                    <Button 
+                      color="blue" 
+                      variant="light" 
+                      size="xs"
+                      onClick={() => handleEditGoal(g)}
+                      loading={updateGoal.isPending}
+                    >
+                      Edit
+                    </Button>
+                  )}
                   <Button 
                     color="green" 
                     variant="light" 
                     size="xs"
-                    onClick={() => handleMarkCompleted(g.id, g.title)}
+                    onClick={() => handleMarkCompleted(g.id, g.description)}
                     loading={completeGoal.isPending}
                   >
                     Complete
@@ -170,22 +182,35 @@ export function GoalsPage() {
                     color="orange" 
                     variant="light" 
                     size="xs"
-                    onClick={() => handleMarkDropped(g.id, g.title)}
+                    onClick={() => handleMarkDropped(g.id, g.description)}
                     loading={dropGoal.isPending}
                   >
                     Drop
                   </Button>
                 </>
               )}
-              <Button 
-                color="red" 
-                variant="light" 
-                size="xs"
-                onClick={() => deleteGoal.mutate(g.id)}
-                loading={deleteGoal.isPending}
-              >
-                Delete
-              </Button>
+              {g.status !== 'completed' && g.status !== 'dropped' && (
+                <Button 
+                  color="violet" 
+                  variant="light" 
+                  size="xs"
+                  onClick={() => handleMoveToNextYear(g)}
+                  loading={updateGoal.isPending}
+                >
+                  Move to Next Year
+                </Button>
+              )}
+              {(g.year || currentYear) >= currentYear && (
+                <Button 
+                  color="red" 
+                  variant="light" 
+                  size="xs"
+                  onClick={() => deleteGoal.mutate(g.id)}
+                  loading={deleteGoal.isPending}
+                >
+                  Delete
+                </Button>
+              )}
             </Group>
           </Card>
         ))}
@@ -196,7 +221,7 @@ export function GoalsPage() {
         onClose={() => setModalOpened(false)}
         onConfirm={handleModalConfirm}
         action={modalAction}
-        goalTitle={selectedGoal?.title || ''}
+        goalDescription={selectedGoal?.description || ''}
         loading={completeGoal.isPending || dropGoal.isPending}
       />
 

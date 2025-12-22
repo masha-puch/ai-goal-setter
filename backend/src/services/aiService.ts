@@ -6,7 +6,7 @@ const client = (() => {
   return new OpenAI({ apiKey });
 })();
 
-export async function getRecommendations(goals: Array<{ title: string; description?: string }>): Promise<string> {
+export async function getRecommendations(goals: Array<{ description: string }>): Promise<string> {
   if (!client) return 'AI is not configured. Set OPENAI_API_KEY.';
   const prompt = `User yearly goals: ${JSON.stringify(goals)}. Provide concise, actionable strategies and milestones.`;
   const res = await client.responses.create({
@@ -30,7 +30,7 @@ export async function getMotivation(context: { mood?: string; progress?: number 
   return res.output_text || 'No response';
 }
 
-export async function getAdjustments(goal: { title: string; status?: string; obstacles?: string }): Promise<string> {
+export async function getAdjustments(goal: { description: string; status?: string; obstacles?: string }): Promise<string> {
   if (!client) return 'AI is not configured. Set OPENAI_API_KEY.';
   const prompt = `Goal: ${JSON.stringify(goal)}. Suggest a recalibrated plan with 3 pragmatic adjustments.`;
   const res = await client.responses.create({ model: 'gpt-4o-mini', input: prompt });

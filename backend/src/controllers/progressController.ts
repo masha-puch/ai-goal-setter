@@ -7,20 +7,26 @@ const prisma = new PrismaClient();
 export const getAllProgress = async (req: AuthenticatedRequest, res: express.Response) => {
   try {
     const userId = req.user?.id;
+    const year = req.query.year ? parseInt(req.query.year as string) : undefined;
 
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
+    const whereClause: any = { userId };
+    if (year !== undefined && !isNaN(year)) {
+      whereClause.goal = {
+        year: year,
+      };
+    }
+
     const progressEntries = await prisma.progressEntry.findMany({
-      where: {
-        userId,
-      },
+      where: whereClause,
       include: {
         goal: {
           select: {
             id: true,
-            title: true,
+            description: true,
           },
         },
       },

@@ -36,11 +36,10 @@ describe('Goals Controller', () => {
       const mockGoal = {
         id: 'goal-1',
         userId: 'user-1',
-        title: 'Learn TypeScript',
         description: 'Master TypeScript fundamentals',
         category: 'learning',
         priority: 1,
-        targetDate: new Date('2024-12-31'),
+        year: 2024,
         milestones: JSON.stringify(['Complete basics', 'Build project']),
         status: 'not_started',
         createdAt: new Date(),
@@ -49,11 +48,10 @@ describe('Goals Controller', () => {
 
       mockRequest.user = { id: 'user-1' }
       mockRequest.body = {
-        title: 'Learn TypeScript',
         description: 'Master TypeScript fundamentals',
         category: 'learning',
         priority: '1',
-        targetDate: '2024-12-31',
+        year: 2024,
         milestones: JSON.stringify(['Complete basics', 'Build project']),
       }
 
@@ -71,7 +69,7 @@ describe('Goals Controller', () => {
     it('should return 401 if user is not authenticated', async () => {
       mockRequest.user = undefined
       mockRequest.body = {
-        title: 'Learn TypeScript',
+        description: 'Learn TypeScript',
         category: 'learning',
       }
 
@@ -88,7 +86,7 @@ describe('Goals Controller', () => {
     it('should handle database errors', async () => {
       mockRequest.user = { id: 'user-1' }
       mockRequest.body = {
-        title: 'Learn TypeScript',
+        description: 'Learn TypeScript',
       }
 
       mockCreateGoal.mockImplementation(async (req, res) => {
@@ -108,7 +106,7 @@ describe('Goals Controller', () => {
         {
           id: 'goal-1',
           userId: 'user-1',
-          title: 'Learn TypeScript',
+          description: 'Learn TypeScript',
           category: 'learning',
           priority: 1,
           status: 'not_started',
@@ -118,7 +116,7 @@ describe('Goals Controller', () => {
         {
           id: 'goal-2',
           userId: 'user-1',
-          title: 'Exercise Daily',
+          description: 'Exercise Daily',
           category: 'health',
           priority: 2,
           status: 'in_progress',
@@ -173,11 +171,10 @@ describe('Goals Controller', () => {
       const updatedGoal = {
         id: 'goal-1',
         userId: 'user-1',
-        title: 'Learn TypeScript Advanced',
         description: 'Master advanced TypeScript concepts',
         category: 'learning',
         priority: 1,
-        targetDate: new Date('2024-12-31'),
+        year: 2024,
         milestones: ['Complete basics', 'Build project', 'Advanced patterns'],
         status: 'in_progress',
         createdAt: new Date(),
@@ -187,11 +184,10 @@ describe('Goals Controller', () => {
       mockRequest.user = { id: 'user-1' }
       mockRequest.params = { goalId: 'goal-1' }
       mockRequest.body = {
-        title: 'Learn TypeScript Advanced',
         description: 'Master advanced TypeScript concepts',
         category: 'learning',
         priority: '1',
-        targetDate: '2024-12-31',
+        year: 2024,
         milestones: JSON.stringify(['Complete basics', 'Build project', 'Advanced patterns']),
         status: 'in_progress',
       }
@@ -208,7 +204,7 @@ describe('Goals Controller', () => {
     it('should return 401 if user is not authenticated', async () => {
       mockRequest.user = undefined
       mockRequest.params = { goalId: 'goal-1' }
-      mockRequest.body = { title: 'Updated Goal' }
+      mockRequest.body = { description: 'Updated Goal' }
 
       mockUpdateGoal.mockImplementation(async (req, res) => {
         res.status(401).json({ error: 'Unauthorized' })
@@ -223,7 +219,7 @@ describe('Goals Controller', () => {
     it('should handle database errors', async () => {
       mockRequest.user = { id: 'user-1' }
       mockRequest.params = { goalId: 'goal-1' }
-      mockRequest.body = { title: 'Updated Goal' }
+      mockRequest.body = { description: 'Updated Goal' }
 
       mockUpdateGoal.mockImplementation(async (req, res) => {
         res.status(500).json({ error: 'Failed to update goal' })

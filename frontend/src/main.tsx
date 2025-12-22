@@ -10,6 +10,7 @@ import '@mantine/core/styles.css'
 import '@mantine/notifications/styles.css'
 import './style.css'
 import { AuthProvider } from './context/AuthContext'
+import { YearProvider } from './context/YearContext'
 import { AuthGuard } from './components/AuthGuard'
 import { AppLayout } from './ui/AppLayout'
 import { LoginPage } from './pages/LoginPage'
@@ -64,7 +65,9 @@ function App() {
         <Notifications position="top-right" />
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <RouterProvider router={router} />
+            <YearProvider>
+              <RouterProvider router={router} />
+            </YearProvider>
           </AuthProvider>
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>

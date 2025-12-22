@@ -6,21 +6,27 @@ const prisma = new PrismaClient();
 
 export const createGoal = async (req: AuthenticatedRequest, res: express.Response) => {
   try {
-    const { title, description, category, priority, targetDate, milestones } = req.body;
+    const { description, category, priority, year, milestones } = req.body;
     const userId = req.user?.id; // Assuming auth middleware sets req.user
 
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
+    // Prevent creating goals in past years
+    const currentYear = new Date().getFullYear();
+    const goalYear = parseInt(year);
+    if (goalYear < currentYear) {
+      return res.status(400).json({ error: 'Cannot create goals in past years' });
+    }
+
     const goal = await prisma.goal.create({
       data: {
         userId,
-        title,
         description,
         category,
         priority: priority ? parseInt(priority) : null,
-        targetDate: targetDate ? new Date(targetDate) : null,
+        year: goalYear,
         milestones: milestones ? JSON.parse(milestones) : null,
       },
     });
@@ -35,13 +41,19 @@ export const createGoal = async (req: AuthenticatedRequest, res: express.Respons
 export const getGoals = async (req: AuthenticatedRequest, res: express.Response) => {
   try {
     const userId = req.user?.id;
+    const year = req.query.year ? parseInt(req.query.year as string) : undefined;
 
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
+    const whereClause: any = { userId };
+    if (year !== undefined && !isNaN(year)) {
+      whereClause.year = year;
+    }
+
     const goals = await prisma.goal.findMany({
-      where: { userId },
+      where: whereClause,
       orderBy: { createdAt: 'desc' },
     });
 
@@ -63,7 +75,7 @@ export const getGoals = async (req: AuthenticatedRequest, res: express.Response)
 export const updateGoal = async (req: AuthenticatedRequest, res: express.Response) => {
   try {
     const { goalId } = req.params;
-    const { title, description, category, priority, targetDate, milestones, status, completionNote } = req.body;
+    const { description, category, priority, year, milestones, status, completionNote } = req.body;
     const userId = req.user?.id;
 
     if (!userId) {
@@ -86,20 +98,49 @@ export const updateGoal = async (req: AuthenticatedRequest, res: express.Respons
       return res.status(404).json({ error: 'Goal not found' });
     }
 
+    // Check if this is a status change (complete/drop) or an edit of other fields
+    const currentYear = new Date().getFullYear();
+    const goalYear = existingGoal.year || currentYear;
+    const isPastYear = goalYear < currentYear;
+    
+    // For past year goals, only allow status changes (complete/drop) or moving forward to future years
+    if (isPastYear) {
+      const isStatusChange = status === 'completed' || status === 'dropped';
+      const newYear = year !== undefined ? parseInt(year) : goalYear;
+      const isMovingForward = newYear > goalYear;
+      const hasOtherFieldChanges = 
+        (description !== undefined && description !== existingGoal.description) ||
+        (category !== undefined && category !== existingGoal.category) ||
+        (priority !== undefined && (priority ? parseInt(priority) : null) !== existingGoal.priority) ||
+        (milestones !== undefined);
+      
+      // Block editing other fields (description, category, priority, milestones)
+      if (hasOtherFieldChanges) {
+        return res.status(403).json({ error: 'Cannot edit other fields of past year goals. Only status changes (complete/drop) or moving to future years are allowed.' });
+      }
+      
+      // Block moving backward or staying the same year (unless it's just a status change)
+      if (year !== undefined && newYear <= goalYear && !isStatusChange) {
+        return res.status(403).json({ error: 'Cannot move past year goals backward or keep them in the past. Only moving forward or status changes are allowed.' });
+      }
+    }
+
+    const updateData: any = {};
+    
+    // Only include fields that are being updated
+    if (description !== undefined) updateData.description = description;
+    if (category !== undefined) updateData.category = category;
+    if (priority !== undefined) updateData.priority = priority ? parseInt(priority) : null;
+    if (milestones !== undefined) updateData.milestones = milestones ? JSON.parse(milestones) : null;
+    if (status !== undefined) updateData.status = status;
+    if (completionNote !== undefined) updateData.completionNote = completionNote;
+    if (year !== undefined) updateData.year = parseInt(year);
+
     const goal = await prisma.goal.update({
       where: { 
         id: goalId,
       },
-      data: {
-        title,
-        description,
-        category,
-        priority: priority ? parseInt(priority) : null,
-        targetDate: targetDate ? new Date(targetDate) : null,
-        milestones: milestones ? JSON.parse(milestones) : null,
-        status,
-        completionNote,
-      },
+      data: updateData,
     });
 
     res.json(goal);
@@ -132,6 +173,13 @@ export const deleteGoal = async (req: AuthenticatedRequest, res: express.Respons
 
     if (!existingGoal) {
       return res.status(404).json({ error: 'Goal not found' });
+    }
+
+    // Prevent deleting goals from past years
+    const currentYear = new Date().getFullYear();
+    const goalYear = existingGoal.year || currentYear;
+    if (goalYear < currentYear) {
+      return res.status(403).json({ error: 'Cannot delete goals from past years' });
     }
 
     await prisma.goal.delete({

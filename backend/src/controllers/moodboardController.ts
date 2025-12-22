@@ -7,21 +7,32 @@ const prisma = new PrismaClient();
 // MoodBoard CRUD operations
 export const createMoodBoard = async (req: AuthenticatedRequest, res: express.Response) => {
   try {
-    const { title, description } = req.body;
+    const { year } = req.body;
     const userId = req.user?.id;
 
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const moodBoard = await prisma.moodBoard.create({
-      data: {
+    const yearValue = year ? parseInt(year) : new Date().getFullYear();
+
+    // Use upsert to ensure only one moodboard per year per user
+    const moodBoard = await prisma.moodBoard.upsert({
+      where: {
+        userId_year: {
+          userId,
+          year: yearValue,
+        },
+      },
+      update: {}, // If exists, just return it
+      create: {
         userId,
-        title,
-        description,
+        year: yearValue,
       },
       include: {
-        items: true,
+        items: {
+          orderBy: { createdAt: 'desc' },
+        },
       },
     });
 
@@ -35,14 +46,20 @@ export const createMoodBoard = async (req: AuthenticatedRequest, res: express.Re
 export const getMoodBoards = async (req: AuthenticatedRequest, res: express.Response) => {
   try {
     const userId = req.user?.id;
+    const year = req.query.year ? parseInt(req.query.year as string) : new Date().getFullYear();
 
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const moodBoards = await prisma.moodBoard.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
+    // Return single moodboard for the year (or null if doesn't exist)
+    const moodBoard = await prisma.moodBoard.findUnique({
+      where: {
+        userId_year: {
+          userId,
+          year: year,
+        },
+      },
       include: {
         items: {
           orderBy: { createdAt: 'desc' },
@@ -50,7 +67,8 @@ export const getMoodBoards = async (req: AuthenticatedRequest, res: express.Resp
       },
     });
 
-    res.json({ items: moodBoards, total: moodBoards.length });
+    // Return in same format as before for compatibility, but with single item
+    res.json({ items: moodBoard ? [moodBoard] : [], total: moodBoard ? 1 : 0 });
   } catch (error) {
     console.error('Error fetching moodboards:', error);
     res.status(500).json({ error: 'Failed to fetch moodboards' });
@@ -96,7 +114,6 @@ export const getMoodBoard = async (req: AuthenticatedRequest, res: express.Respo
 export const updateMoodBoard = async (req: AuthenticatedRequest, res: express.Response) => {
   try {
     const { moodBoardId } = req.params;
-    const { title, description } = req.body;
     const userId = req.user?.id;
 
     if (!userId) {
@@ -119,16 +136,15 @@ export const updateMoodBoard = async (req: AuthenticatedRequest, res: express.Re
       return res.status(404).json({ error: 'MoodBoard not found' });
     }
 
-    const moodBoard = await prisma.moodBoard.update({
+    // Moodboards can't be updated (only year and items matter)
+    const moodBoard = await prisma.moodBoard.findUnique({
       where: { 
         id: moodBoardId,
       },
-      data: {
-        title,
-        description,
-      },
       include: {
-        items: true,
+        items: {
+          orderBy: { createdAt: 'desc' },
+        },
       },
     });
 

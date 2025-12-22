@@ -6,7 +6,7 @@ interface GoalCompletionModalProps {
   onClose: () => void
   onConfirm: (note: string) => void
   action: 'complete' | 'drop'
-  goalTitle: string
+  goalDescription: string
   loading?: boolean
 }
 
@@ -15,7 +15,7 @@ export function GoalCompletionModal({
   onClose, 
   onConfirm, 
   action, 
-  goalTitle, 
+  goalDescription, 
   loading = false 
 }: GoalCompletionModalProps) {
   const [note, setNote] = useState('')
@@ -49,7 +49,10 @@ export function GoalCompletionModal({
       }}
     >
       <Text mb="md">
-        Are you sure you want to {action} <strong>"{goalTitle}"</strong>?
+        Are you sure you want to {action} this goal?
+      </Text>
+      <Text size="sm" c="dimmed" mb="md" style={{ whiteSpace: 'pre-wrap' }}>
+        {goalDescription.length > 100 ? goalDescription.substring(0, 100) + '...' : goalDescription}
       </Text>
       
       <Textarea

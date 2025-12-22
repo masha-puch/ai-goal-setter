@@ -2,8 +2,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from './client'
 
 // Goals
-export function useGoals() {
-  return useQuery({ queryKey: ['goals'], queryFn: async () => (await api.get('/goals')).data.items as any[] })
+export function useGoals(year?: number) {
+  return useQuery({ 
+    queryKey: ['goals', year], 
+    queryFn: async () => {
+      const params = year ? { params: { year } } : {};
+      return (await api.get('/goals', params)).data.items as any[];
+    }
+  })
 }
 
 export function useCreateGoal() {
@@ -58,10 +64,13 @@ export function useProgress(goalId: string | null) {
 }
 
 // Progress (all goals)
-export function useAllProgress() {
+export function useAllProgress(year?: number) {
   return useQuery({
-    queryKey: ['progress', 'all'],
-    queryFn: async () => (await api.get('/progress')).data.items as any[],
+    queryKey: ['progress', 'all', year],
+    queryFn: async () => {
+      const params = year ? { params: { year } } : {};
+      return (await api.get('/progress', params)).data.items as any[];
+    },
   })
 }
 
@@ -92,12 +101,20 @@ export function useDeleteProgress() {
   })
 }
 
-// Moodboards
-export function useMoodBoards() {
-  return useQuery({ queryKey: ['moodboards'], queryFn: async () => (await api.get('/moodboard')).data.items as any[] })
+// Moodboards - returns single moodboard for the year (or null)
+export function useMoodBoard(year?: number) {
+  return useQuery({ 
+    queryKey: ['moodboards', year], 
+    queryFn: async () => {
+      const params = year ? { params: { year } } : {};
+      const response = (await api.get('/moodboard', params)).data;
+      // Return first item if exists, otherwise null
+      return response.items && response.items.length > 0 ? response.items[0] : null;
+    }
+  })
 }
 
-export function useMoodBoard(moodBoardId: string | null) {
+export function useMoodBoardById(moodBoardId: string | null) {
   return useQuery({
     queryKey: ['moodboards', moodBoardId],
     queryFn: async () => (await api.get(`/moodboard/${moodBoardId}`)).data as any,
@@ -187,8 +204,14 @@ export function useDeleteMoodBoardItem(moodBoardId: string) {
 }
 
 // Reflections
-export function useReflections() {
-  return useQuery({ queryKey: ['reflections'], queryFn: async () => (await api.get('/reflections')).data.items as any[] })
+export function useReflections(year?: number) {
+  return useQuery({ 
+    queryKey: ['reflections', year], 
+    queryFn: async () => {
+      const params = year ? { params: { year } } : {};
+      return (await api.get('/reflections', params)).data.items as any[];
+    }
+  })
 }
 
 export function useCreateReflection() {

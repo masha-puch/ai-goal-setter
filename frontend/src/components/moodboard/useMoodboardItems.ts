@@ -3,8 +3,7 @@ import type { DragEndEvent } from '@dnd-kit/core'
 
 interface MoodBoard {
   id: string
-  title: string
-  description?: string
+  year: number
   items?: MoodBoardItem[]
   createdAt: string
 }

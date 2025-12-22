@@ -12,11 +12,10 @@ export const loginSchema = z.object({
 });
 
 export const goalCreateSchema = z.object({
-  title: z.string().min(1),
-  description: z.string().max(2000).optional(),
+  description: z.string().min(1).max(2000),
   category: z.enum(['health', 'career', 'finance', 'learning', 'relationships', 'other']).optional(),
   priority: z.enum(['1', '2', '3']).transform((v) => Number(v)).optional().or(z.number().int().min(1).max(3).optional()),
-  targetDate: z.string().datetime().optional(),
+  year: z.number().int().min(2000).max(2100),
   milestones: z
     .array(
       z.object({ id: z.string().optional(), title: z.string(), done: z.boolean().default(false), dueDate: z.string().datetime().optional() })

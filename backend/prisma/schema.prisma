@@ -31,11 +31,10 @@ model Goal {
   id             String      @id @default(cuid())
   userId         String
   user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title          String
-  description    String?
+  description    String
   category       String?
   priority       Int?
-  targetDate     DateTime?
+  year           Int
   milestones     Json?
   status         String      @default("in_progress")
   completionNote String?
@@ -64,12 +63,13 @@ model MoodBoard {
   id          String   @id @default(cuid())
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title       String
-  description String?
+  year        Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   items       MoodBoardItem[]
+
+  @@unique([userId, year])
 }
 
 model MoodBoardItem {

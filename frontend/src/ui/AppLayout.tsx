@@ -1,17 +1,31 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { AppShell, Burger, Button, Group, Text, Title, ActionIcon, useMantineColorScheme, useComputedColorScheme } from '@mantine/core'
+import { useYear } from '../context/YearContext'
+import { AppShell, Burger, Button, Group, Text, Title, ActionIcon, useMantineColorScheme, useComputedColorScheme, Select } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { IconSun, IconMoon } from '@tabler/icons-react'
 
 export function AppLayout() {
   const { user, logout } = useAuth()
+  const { year, setYear } = useYear()
   const [opened, { toggle }] = useDisclosure()
   const location = useLocation()
   const navigate = useNavigate()
   const { setColorScheme } = useMantineColorScheme()
   const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
+
+  const yearOptions = useMemo(() => {
+    const currentYear = new Date().getFullYear()
+    const years = []
+    for (let i = -5; i <= 5; i++) {
+      years.push({
+        value: String(currentYear + i),
+        label: String(currentYear + i),
+      })
+    }
+    return years
+  }, [])
 
   const toggleColorScheme = () => {
     setColorScheme(computedColorScheme === 'dark' ? 'light' : 'dark')
@@ -36,6 +50,13 @@ export function AppLayout() {
             <Title order={3}><Link to="/">Smart Notebook</Link></Title>
           </Group>
           <Group>
+            <Select
+              value={String(year)}
+              onChange={(value) => setYear(value ? parseInt(value, 10) : new Date().getFullYear())}
+              data={yearOptions}
+              w={100}
+              size="sm"
+            />
             <ActionIcon
               onClick={toggleColorScheme}
               variant="default"
