@@ -235,7 +235,3 @@ export function GoalsPage() {
     </Container>
   )
 }
-
-
-
-

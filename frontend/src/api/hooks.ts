@@ -238,20 +238,3 @@ export function useDeleteReflection() {
   })
 }
 
-// AI
-export function useAiRecommendations() {
-  return useMutation({ mutationFn: async () => (await api.post('/ai/recommendations', {})).data as { text: string } })
-}
-export function useAiMoodboardSuggestions() {
-  return useMutation({ mutationFn: async () => (await api.post('/ai/moodboard/suggestions', {})).data as { text: string } })
-}
-export function useAiMotivation() {
-  return useMutation({ mutationFn: async () => (await api.post('/ai/motivation', {})).data as { text: string } })
-}
-export function useAiAdjust() {
-  return useMutation({ mutationFn: async () => (await api.post('/ai/adjust', {})).data as { text: string } })
-}
-export function useAiSummary() {
-  return useMutation({ mutationFn: async () => (await api.post('/ai/summary', {})).data as { text: string } })
-}
-
