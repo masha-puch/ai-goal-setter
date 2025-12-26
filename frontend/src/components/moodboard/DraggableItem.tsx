@@ -15,15 +15,16 @@ interface MoodBoardItem {
 
 interface DraggableItemProps {
   item: MoodBoardItem
-  onDelete: (id: string) => void
+  localPosition?: { x: number; y: number; width: number; height: number; zIndex?: number }
+  mode?: 'edit' | 'read'
+  // Edit mode only props
+  onDelete?: (id: string) => void
   onResize?: (id: string, size: { width: number; height: number }) => void
   onBringForward?: (id: string) => void
   onSendBackward?: (id: string) => void
-  localPosition?: { x: number; y: number; width: number; height: number; zIndex?: number }
-  mode?: 'edit' | 'read'
 }
 
-export function DraggableItem({ item, onDelete, onResize, onBringForward, onSendBackward, localPosition, mode = 'edit' }: DraggableItemProps) {
+export function DraggableItem({ item, localPosition, mode = 'edit', onDelete, onResize, onBringForward, onSendBackward }: DraggableItemProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: item.id,
     disabled: mode === 'read',
@@ -180,18 +181,20 @@ export function DraggableItem({ item, onDelete, onResize, onBringForward, onSend
               <IconArrowDown size={14} />
             </ActionIcon>
           )}
-          <ActionIcon
-            color="red"
-            variant="subtle"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation()
-              onDelete(item.id)
-            }}
-            title="Delete"
-          >
-            <IconX size={14} />
-          </ActionIcon>
+          {onDelete && (
+            <ActionIcon
+              color="red"
+              variant="subtle"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation()
+                onDelete(item.id)
+              }}
+              title="Delete"
+            >
+              <IconX size={14} />
+            </ActionIcon>
+          )}
         </Group>
       </Group>
       <img

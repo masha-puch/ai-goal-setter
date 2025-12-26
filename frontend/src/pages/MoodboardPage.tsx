@@ -120,16 +120,24 @@ export function MoodboardPage() {
             isLoading={createItem.isPending}
           />
 
-          <MoodboardCanvas 
-            items={moodBoard.items}
-            localPositions={localPositions}
-            onDragEnd={handleDragEnd}
-            onDeleteItem={(id) => deleteItem.mutate(id)}
-            onResize={handleResize}
-            onBringForward={handleBringForward}
-            onSendBackward={handleSendBackward}
-            mode={mode}
-          />
+          {mode === 'edit' ? (
+            <MoodboardCanvas 
+              items={moodBoard.items}
+              localPositions={localPositions}
+              mode={mode}
+              onDragEnd={handleDragEnd}
+              onDeleteItem={(id) => deleteItem.mutate(id)}
+              onResize={handleResize}
+              onBringForward={handleBringForward}
+              onSendBackward={handleSendBackward}
+            />
+          ) : (
+            <MoodboardCanvas 
+              items={moodBoard.items}
+              localPositions={localPositions}
+              mode={mode}
+            />
+          )}
         </Stack>
       ) : (
         <Paper withBorder p="xl" radius="md">

@@ -14,15 +14,16 @@ interface MoodBoardItem {
 interface MoodboardCanvasProps {
   items?: MoodBoardItem[]
   localPositions: Record<string, { x: number; y: number; width: number; height: number; zIndex?: number }>
-  onDragEnd: (event: DragEndEvent) => void
-  onDeleteItem: (id: string) => void
+  mode?: 'edit' | 'read'
+  // Edit mode only props
+  onDragEnd?: (event: DragEndEvent) => void
+  onDeleteItem?: (id: string) => void
   onResize?: (id: string, size: { width: number; height: number }) => void
   onBringForward?: (id: string) => void
   onSendBackward?: (id: string) => void
-  mode?: 'edit' | 'read'
 }
 
-export function MoodboardCanvas({ items, localPositions, onDragEnd, onDeleteItem, onResize, onBringForward, onSendBackward, mode = 'edit' }: MoodboardCanvasProps) {
+export function MoodboardCanvas({ items, localPositions, mode = 'edit', onDragEnd, onDeleteItem, onResize, onBringForward, onSendBackward }: MoodboardCanvasProps) {
   const theme = useMantineTheme()
   const { colorScheme } = useMantineColorScheme()
 
@@ -62,18 +63,18 @@ export function MoodboardCanvas({ items, localPositions, onDragEnd, onDeleteItem
           key={item.id}
           item={item}
           localPosition={localPositions[item.id]}
-          onDelete={onDeleteItem}
-          onResize={onResize}
-          onBringForward={onBringForward}
-          onSendBackward={onSendBackward}
           mode={mode}
+          onDelete={mode === 'edit' ? onDeleteItem : undefined}
+          onResize={mode === 'edit' ? onResize : undefined}
+          onBringForward={mode === 'edit' ? onBringForward : undefined}
+          onSendBackward={mode === 'edit' ? onSendBackward : undefined}
         />
       ))}
     </Box>
   )
 
-  // Only wrap in DndContext if in edit mode
-  if (mode === 'edit') {
+  // Only wrap in DndContext if in edit mode and onDragEnd is provided
+  if (mode === 'edit' && onDragEnd) {
     return (
       <DndContext
         sensors={sensors}
