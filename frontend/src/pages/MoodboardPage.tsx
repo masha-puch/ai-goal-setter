@@ -25,22 +25,6 @@ import {
   useMoodboardDragDrop,
 } from '../components/moodboard'
 
-interface MoodBoard {
-  id: string
-  year: number
-  items?: MoodBoardItem[]
-  createdAt: string
-}
-
-interface MoodBoardItem {
-  id: string
-  type: string
-  content: string
-  tags?: any
-  position?: { x: number; y: number; width: number; height: number; zIndex?: number }
-  createdAt: string
-}
-
 export function MoodboardPage() {
   const theme = useMantineTheme()
   const { colorScheme } = useMantineColorScheme()
@@ -64,7 +48,6 @@ export function MoodboardPage() {
 
   const {
     localPositions,
-    setLocalPositions,
     fileToBase64,
     getRandomPosition,
     handleAddItem,

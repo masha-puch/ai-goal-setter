@@ -67,14 +67,6 @@ export function useMoodBoard(year?: number) {
   })
 }
 
-export function useMoodBoardById(moodBoardId: string | null) {
-  return useQuery({
-    queryKey: ['moodboards', moodBoardId],
-    queryFn: async () => (await api.get(`/moodboard/${moodBoardId}`)).data as any,
-    enabled: !!moodBoardId,
-  })
-}
-
 export function useCreateMoodBoard() {
   const qc = useQueryClient()
   return useMutation({
@@ -83,31 +75,7 @@ export function useCreateMoodBoard() {
   })
 }
 
-export function useUpdateMoodBoard() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async ({ moodBoardId, data }: { moodBoardId: string; data: any }) => (await api.patch(`/moodboard/${moodBoardId}`, data)).data,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['moodboards'] }),
-  })
-}
-
-export function useDeleteMoodBoard() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (moodBoardId: string) => (await api.delete(`/moodboard/${moodBoardId}`)).data,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['moodboards'] }),
-  })
-}
-
 // MoodBoard Items
-export function useMoodBoardItems(moodBoardId: string | null) {
-  return useQuery({
-    queryKey: ['moodboards', moodBoardId, 'items'],
-    queryFn: async () => (await api.get(`/moodboard/${moodBoardId}/items`)).data.items as any[],
-    enabled: !!moodBoardId,
-  })
-}
-
 export function useCreateMoodBoardItem(moodBoardId: string) {
   const qc = useQueryClient()
   return useMutation({
@@ -171,14 +139,6 @@ export function useCreateAchievement() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (data: any) => (await api.post('/achievements', data)).data,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['achievements'] }),
-  })
-}
-
-export function useUpdateAchievement() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async ({ achievementId, data }: { achievementId: string; data: any }) => (await api.patch(`/achievements/${achievementId}`, data)).data,
     onSuccess: () => qc.invalidateQueries({ queryKey: ['achievements'] }),
   })
 }

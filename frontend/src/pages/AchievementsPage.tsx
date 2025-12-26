@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Card, Container, Group, NumberInput, SimpleGrid, Text, Textarea, Title } from '@mantine/core'
+import { Button, Card, Container, Group, SimpleGrid, Text, Textarea, Title } from '@mantine/core'
 import { useCreateAchievement, useDeleteAchievement, useAchievements } from '../api/hooks'
 import { useYear } from '../context/YearContext'
 
