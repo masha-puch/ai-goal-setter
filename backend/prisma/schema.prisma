@@ -22,9 +22,8 @@ model User {
   updatedAt    DateTime @updatedAt
 
   goals        Goal[]
-  progress     ProgressEntry[]
   moodBoards   MoodBoard[]
-  reflections  Reflection[]
+  achievements Achievement[]
 }
 
 model Goal {
@@ -40,23 +39,6 @@ model Goal {
   completionNote String?
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
-
-  progress       ProgressEntry[]
-}
-
-model ProgressEntry {
-  id            String   @id @default(cuid())
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  goalId        String
-  goal          Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
-  period        String
-  date          DateTime
-  progressValue Int?
-  note          String?
-  mood          String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
 }
 
 model MoodBoard {
@@ -84,7 +66,7 @@ model MoodBoardItem {
   updatedAt   DateTime  @updatedAt
 }
 
-model Reflection {
+model Achievement {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -26,16 +26,6 @@ export const goalCreateSchema = z.object({
 
 export const goalPatchSchema = goalCreateSchema.partial();
 
-export const progressCreateSchema = z.object({
-  period: z.enum(['monthly', 'quarterly', 'custom']),
-  date: z.string().datetime(),
-  progressValue: z.number().min(0).max(100).optional(),
-  note: z.string().optional(),
-  mood: z.enum(['low', 'neutral', 'high']).optional(),
-});
-
-export const progressPatchSchema = progressCreateSchema.partial();
-
 export const moodBoardCreateSchema = z.object({
   type: z.enum(['image', 'text', 'link']),
   content: z.string().min(1),
@@ -47,10 +37,10 @@ export const moodBoardCreateSchema = z.object({
 
 export const moodBoardPatchSchema = moodBoardCreateSchema.partial();
 
-export const reflectionCreateSchema = z.object({
+export const achievementCreateSchema = z.object({
   year: z.number().int().min(2000).max(2100),
   text: z.string().min(1),
 });
 
-export const reflectionPatchSchema = reflectionCreateSchema.partial();
+export const achievementPatchSchema = achievementCreateSchema.partial();
 

@@ -54,53 +54,6 @@ export function useDeleteGoal() {
   })
 }
 
-// Progress (per goal)
-export function useProgress(goalId: string | null) {
-  return useQuery({
-    queryKey: ['progress', goalId],
-    queryFn: async () => (await api.get(`/goals/${goalId}/progress`)).data.items as any[],
-    enabled: !!goalId,
-  })
-}
-
-// Progress (all goals)
-export function useAllProgress(year?: number) {
-  return useQuery({
-    queryKey: ['progress', 'all', year],
-    queryFn: async () => {
-      const params = year ? { params: { year } } : {};
-      return (await api.get('/progress', params)).data.items as any[];
-    },
-  })
-}
-
-export function useCreateProgress(goalId: string) {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (data: any) => (await api.post(`/goals/${goalId}/progress`, data)).data,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['progress', goalId] });
-      qc.invalidateQueries({ queryKey: ['progress', 'all'] });
-    },
-  })
-}
-
-export function useUpdateProgress() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async ({ progressId, data }: { progressId: string; data: any }) => (await api.patch(`/progress/${progressId}`, data)).data,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['progress'] }),
-  })
-}
-
-export function useDeleteProgress() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (progressId: string) => (await api.delete(`/progress/${progressId}`)).data,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['progress'] }),
-  })
-}
-
 // Moodboards - returns single moodboard for the year (or null)
 export function useMoodBoard(year?: number) {
   return useQuery({ 
@@ -203,38 +156,38 @@ export function useDeleteMoodBoardItem(moodBoardId: string) {
   })
 }
 
-// Reflections
-export function useReflections(year?: number) {
+// Achievements
+export function useAchievements(year?: number) {
   return useQuery({ 
-    queryKey: ['reflections', year], 
+    queryKey: ['achievements', year], 
     queryFn: async () => {
       const params = year ? { params: { year } } : {};
-      return (await api.get('/reflections', params)).data.items as any[];
+      return (await api.get('/achievements', params)).data.items as any[];
     }
   })
 }
 
-export function useCreateReflection() {
+export function useCreateAchievement() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (data: any) => (await api.post('/reflections', data)).data,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['reflections'] }),
+    mutationFn: async (data: any) => (await api.post('/achievements', data)).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['achievements'] }),
   })
 }
 
-export function useUpdateReflection() {
+export function useUpdateAchievement() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ reflectionId, data }: { reflectionId: string; data: any }) => (await api.patch(`/reflections/${reflectionId}`, data)).data,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['reflections'] }),
+    mutationFn: async ({ achievementId, data }: { achievementId: string; data: any }) => (await api.patch(`/achievements/${achievementId}`, data)).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['achievements'] }),
   })
 }
 
-export function useDeleteReflection() {
+export function useDeleteAchievement() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (reflectionId: string) => (await api.delete(`/reflections/${reflectionId}`)).data,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['reflections'] }),
+    mutationFn: async (achievementId: string) => (await api.delete(`/achievements/${achievementId}`)).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['achievements'] }),
   })
 }
 

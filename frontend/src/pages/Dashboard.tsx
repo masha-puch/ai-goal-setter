@@ -5,17 +5,12 @@ export function Dashboard() {
   return (
     <Container size="lg" my="md">
       <Title order={2}>Your Yearly Notebook</Title>
-      <Text c="dimmed" mt="xs">Set goals, track progress, build your mood board, and reflect.</Text>
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md" mt="lg">
+      <Text c="dimmed" mt="xs">Set goals, build your mood board, and record achievements.</Text>
+      <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md" mt="lg">
         <Card withBorder>
           <Title order={4}>Goals</Title>
           <Text c="dimmed">Create and manage your goals</Text>
           <Group mt="sm"><Button component={Link} to="/goals" variant="light">Open</Button></Group>
-        </Card>
-        <Card withBorder>
-          <Title order={4}>Progress</Title>
-          <Text c="dimmed">Update progress entries</Text>
-          <Group mt="sm"><Button component={Link} to="/progress" variant="light">Open</Button></Group>
         </Card>
         <Card withBorder>
           <Title order={4}>Mood Board</Title>
@@ -23,9 +18,9 @@ export function Dashboard() {
           <Group mt="sm"><Button component={Link} to="/moodboard" variant="light">Open</Button></Group>
         </Card>
         <Card withBorder>
-          <Title order={4}>Reflections</Title>
-          <Text c="dimmed">Capture end-of-year thoughts</Text>
-          <Group mt="sm"><Button component={Link} to="/reflections" variant="light">Open</Button></Group>
+          <Title order={4}>Achievements</Title>
+          <Text c="dimmed">Record your year's achievements</Text>
+          <Group mt="sm"><Button component={Link} to="/achievements" variant="light">Open</Button></Group>
         </Card>
       </SimpleGrid>
     </Container>

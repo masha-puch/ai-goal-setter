@@ -39,14 +39,12 @@ Tests goals route integration:
 - Route parameter validation
 - Middleware integration (auth)
 - HTTP method handling (GET, POST, PATCH, DELETE)
-- Progress endpoints (nested under goals)
 - Error response handling
 
 **Key Test Scenarios:**
 - ✅ All CRUD operations via HTTP routes
 - ✅ Authentication middleware integration
 - ✅ Route parameter validation
-- ✅ Nested progress endpoints
 - ✅ Error handling and status codes
 
 ### Frontend Tests

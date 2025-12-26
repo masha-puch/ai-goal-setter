@@ -1,13 +1,12 @@
 # AI Goal Setter
 
-An AI-powered goal setting and tracking application that helps users set, track, and achieve their goals with intelligent insights and progress visualization.
+An AI-powered goal setting and tracking application that helps users set and achieve their goals with intelligent insights.
 
 ## Features
 
 - **Smart Goal Setting**: AI-assisted goal creation and refinement
-- **Progress Tracking**: Visual progress tracking with milestones
 - **Moodboard**: Visual inspiration and motivation board
-- **Reflections**: AI-powered reflection prompts and insights
+- **Achievements**: Record and celebrate your year's achievements
 - **User Authentication**: Secure user registration and login
 - **Responsive Design**: Modern UI built with React and Mantine
 
@@ -119,22 +118,17 @@ This will start both the backend server (port 3000) and frontend development ser
 - `PUT /api/goals/:id` - Update goal
 - `DELETE /api/goals/:id` - Delete goal
 
-### Progress
-- `GET /api/progress` - Get progress data
-- `POST /api/progress` - Log progress
-
 ### Moodboard
 - `GET /api/moodboard` - Get moodboard items
 - `POST /api/moodboard` - Add moodboard item
 - `DELETE /api/moodboard/:id` - Remove moodboard item
 
-### Reflections
-- `GET /api/reflections` - Get reflections
-- `POST /api/reflections` - Create reflection
+### Achievements
+- `GET /api/achievements` - Get achievements
+- `POST /api/achievements` - Create achievement
 
 ### AI Features
 - `POST /api/ai/suggest-goals` - Get AI goal suggestions
-- `POST /api/ai/analyze-progress` - Analyze progress with AI
 
 ## Contributing
 

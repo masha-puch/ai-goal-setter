@@ -27,16 +27,6 @@ jest.mock('../../controllers/goalsController', () => ({
   }),
 }))
 
-// Mock the progress controller
-jest.mock('../../controllers/progressController', () => ({
-  getProgress: jest.fn((req: any, res: any) => {
-    res.json({ items: [], total: 0 })
-  }),
-  createProgress: jest.fn((req: any, res: any) => {
-    res.status(201).json({ id: 'progress-1' })
-  }),
-}))
-
 const app = express()
 app.use(express.json())
 app.use('/goals', goalsRouter)
@@ -171,72 +161,6 @@ describe('Goals Routes', () => {
       await request(app)
         .delete('/goals/non-existent')
         .expect(204)
-    })
-  })
-
-  describe('GET /goals/:goalId/progress', () => {
-    it('should fetch progress for a specific goal', async () => {
-      const response = await request(app)
-        .get('/goals/goal-1/progress')
-        .expect(200)
-
-      expect(response.body).toEqual({ items: [], total: 0 })
-    })
-
-    it('should handle progress fetch for non-existent goal', async () => {
-      const response = await request(app)
-        .get('/goals/non-existent/progress')
-        .expect(200)
-
-      expect(response.body).toEqual({ items: [], total: 0 })
-    })
-  })
-
-  describe('POST /goals/:goalId/progress', () => {
-    it('should create progress entry for a goal', async () => {
-      const progressData = {
-        period: 'daily',
-        date: '2024-01-01',
-        progressValue: 50,
-        note: 'Made good progress',
-      }
-
-      const response = await request(app)
-        .post('/goals/goal-1/progress')
-        .send(progressData)
-        .expect(201)
-
-      expect(response.body).toEqual({ id: 'progress-1' })
-    })
-
-    it('should handle progress creation with minimal data', async () => {
-      const progressData = {
-        period: 'daily',
-        date: '2024-01-01',
-      }
-
-      const response = await request(app)
-        .post('/goals/goal-1/progress')
-        .send(progressData)
-        .expect(201)
-
-      expect(response.body).toEqual({ id: 'progress-1' })
-    })
-  })
-
-  describe('Route parameter validation', () => {
-    it('should handle empty goal ID in progress routes', async () => {
-      await request(app)
-        .get('/goals//progress')
-        .expect(404) // Express treats this as a different route
-    })
-
-    it('should handle malformed goal ID', async () => {
-      const response = await request(app)
-        .get('/goals/special@chars/progress')
-        .expect(200)
-
-      expect(response.body).toEqual({ items: [], total: 0 })
     })
   })
 

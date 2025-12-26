@@ -18,9 +18,8 @@ import { RegisterPage } from './pages/RegisterPage'
 import { AuthCallback } from './pages/AuthCallback'
 import { Dashboard } from './pages/Dashboard'
 import { GoalsPage } from './pages/GoalsPage'
-import { ProgressPage } from './pages/ProgressPage'
 import { MoodboardPage } from './pages/MoodboardPage'
-import { ReflectionsPage } from './pages/ReflectionsPage'
+import { AchievementsPage } from './pages/AchievementsPage'
 
 const queryClient = new QueryClient()
 
@@ -35,9 +34,8 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Dashboard /> },
       { path: 'goals', element: <GoalsPage /> },
-      { path: 'progress', element: <ProgressPage /> },
       { path: 'moodboard', element: <MoodboardPage /> },
-      { path: 'reflections', element: <ReflectionsPage /> },
+      { path: 'achievements', element: <AchievementsPage /> },
     ],
   },
   {
