@@ -28,6 +28,8 @@ export const createMoodBoard = async (req: AuthenticatedRequest, res: express.Re
       create: {
         userId,
         year: yearValue,
+        canvasWidth: 1200, // Default canvas width
+        canvasHeight: 800, // Default canvas height
       },
       include: {
         items: {
@@ -114,6 +116,7 @@ export const getMoodBoard = async (req: AuthenticatedRequest, res: express.Respo
 export const updateMoodBoard = async (req: AuthenticatedRequest, res: express.Response) => {
   try {
     const { moodBoardId } = req.params;
+    const { canvasWidth, canvasHeight } = req.body;
     const userId = req.user?.id;
 
     if (!userId) {
@@ -136,11 +139,16 @@ export const updateMoodBoard = async (req: AuthenticatedRequest, res: express.Re
       return res.status(404).json({ error: 'MoodBoard not found' });
     }
 
-    // Moodboards can't be updated (only year and items matter)
-    const moodBoard = await prisma.moodBoard.findUnique({
+    // Build update data object, only including defined fields
+    const updateData: any = {};
+    if (canvasWidth !== undefined) updateData.canvasWidth = canvasWidth;
+    if (canvasHeight !== undefined) updateData.canvasHeight = canvasHeight;
+
+    const moodBoard = await prisma.moodBoard.update({
       where: { 
         id: moodBoardId,
       },
+      data: updateData,
       include: {
         items: {
           orderBy: { createdAt: 'desc' },
