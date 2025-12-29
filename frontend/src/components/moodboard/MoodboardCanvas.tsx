@@ -3,6 +3,9 @@ import { Box, Paper, Text, useMantineTheme, useMantineColorScheme } from '@manti
 import { DndContext, useSensors, useSensor, PointerSensor, closestCenter, type DragEndEvent } from '@dnd-kit/core'
 import { DraggableItem } from './DraggableItem'
 
+export const CANVAS_WIDTH = 1200
+export const CANVAS_HEIGHT = 800
+
 interface MoodBoardItem {
   id: string
   type: string
@@ -55,10 +58,6 @@ export function MoodboardCanvas({
 
   // Extract values from moodboard
   const items = moodBoard?.items
-  
-  // Fixed canvas dimensions
-  const canvasWidth = 1200
-  const canvasHeight = 800
 
   if (!items || items.length === 0) {
     return (
@@ -75,8 +74,8 @@ export function MoodboardCanvas({
       ref={canvasRef}
       style={{
         position: 'relative',
-        width: `${canvasWidth}px`,
-        height: `${canvasHeight}px`,
+        width: `${CANVAS_WIDTH}px`,
+        height: `${CANVAS_HEIGHT}px`,
         backgroundColor: mode === 'read' ? 'transparent' : (colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0]),
         borderRadius: mode === 'read' ? '0' : '12px',
         border: mode === 'read' ? 'none' : `1px dashed ${colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2]}`,

@@ -5,9 +5,7 @@ import { IconPencil } from '@tabler/icons-react'
 import { useMoodBoard, useCreateMoodBoard } from '../api/hooks'
 import { useYear } from '../context/YearContext'
 import { MoodboardCanvas } from '../components/moodboard'
-
-const CANVAS_WIDTH = 1200
-const CANVAS_HEIGHT = 800
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from '../components/moodboard/MoodboardCanvas'
 
 export function Dashboard() {
   const { year } = useYear()

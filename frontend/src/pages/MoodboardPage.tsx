@@ -120,25 +120,27 @@ export function MoodboardPage() {
             isLoading={createItem.isPending}
           />
 
-          <Box style={{ flex: 1, overflow: 'auto', minHeight: 0, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '20px' }}>
-            {mode === 'edit' ? (
-              <MoodboardCanvas 
-                moodBoard={moodBoard}
-                localPositions={localPositions}
-                mode={mode}
-                onDragEnd={handleDragEnd}
-                onDeleteItem={(id) => deleteItem.mutate(id)}
-                onResize={handleResize}
-                onBringForward={handleBringForward}
-                onSendBackward={handleSendBackward}
-              />
-            ) : (
-              <MoodboardCanvas 
-                moodBoard={moodBoard}
-                localPositions={localPositions}
-                mode={mode}
-              />
-            )}
+          <Box style={{ flex: 1, overflow: 'hidden', minHeight: 0, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '20px', width: '100%', boxSizing: 'border-box' }}>
+            <Box style={{ width: '100%', maxWidth: '100%', display: 'flex', justifyContent: 'center', boxSizing: 'border-box' }}>
+              {mode === 'edit' ? (
+                <MoodboardCanvas 
+                  moodBoard={moodBoard}
+                  localPositions={localPositions}
+                  mode={mode}
+                  onDragEnd={handleDragEnd}
+                  onDeleteItem={(id) => deleteItem.mutate(id)}
+                  onResize={handleResize}
+                  onBringForward={handleBringForward}
+                  onSendBackward={handleSendBackward}
+                />
+              ) : (
+                <MoodboardCanvas 
+                  moodBoard={moodBoard}
+                  localPositions={localPositions}
+                  mode={mode}
+                />
+              )}
+            </Box>
           </Box>
         </Stack>
       ) : (
