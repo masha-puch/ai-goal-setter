@@ -23,7 +23,7 @@ interface MoodBoard {
 
 interface MoodboardCanvasProps {
   moodBoard: MoodBoard
-  localPositions: Record<string, { x: number; y: number; width: number; height: number; zIndex?: number }>
+  localPositions?: Record<string, { x: number; y: number; width: number; height: number; zIndex?: number }>
   mode?: 'edit' | 'read'
   // Edit mode only props
   onDragEnd?: (event: DragEndEvent) => void
@@ -149,7 +149,7 @@ export function MoodboardCanvas({
         <DraggableItem
           key={item.id}
           item={item}
-          localPosition={localPositions[item.id]}
+          localPosition={localPositions?.[item.id]}
           mode={mode}
           onDelete={mode === 'edit' ? onDeleteItem : undefined}
           onResize={mode === 'edit' ? onResize : undefined}
