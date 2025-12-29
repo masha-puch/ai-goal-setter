@@ -75,15 +75,6 @@ export function useCreateMoodBoard() {
   })
 }
 
-export function useUpdateMoodBoard() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async ({ moodBoardId, data }: { moodBoardId: string; data: any }) => 
-      (await api.patch(`/moodboard/${moodBoardId}`, data)).data,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['moodboards'] }),
-  })
-}
-
 // MoodBoard Items
 export function useCreateMoodBoardItem(moodBoardId: string) {
   const qc = useQueryClient()

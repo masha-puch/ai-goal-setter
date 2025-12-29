@@ -28,8 +28,6 @@ export const createMoodBoard = async (req: AuthenticatedRequest, res: express.Re
       create: {
         userId,
         year: yearValue,
-        canvasWidth: 1200, // Default canvas width
-        canvasHeight: 800, // Default canvas height
       },
       include: {
         items: {
@@ -110,56 +108,6 @@ export const getMoodBoard = async (req: AuthenticatedRequest, res: express.Respo
   } catch (error) {
     console.error('Error fetching moodboard:', error);
     res.status(500).json({ error: 'Failed to fetch moodboard' });
-  }
-};
-
-export const updateMoodBoard = async (req: AuthenticatedRequest, res: express.Response) => {
-  try {
-    const { moodBoardId } = req.params;
-    const { canvasWidth, canvasHeight } = req.body;
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    if (!moodBoardId) {
-      return res.status(400).json({ error: 'MoodBoard ID is required' });
-    }
-
-    // Verify the moodboard belongs to the user
-    const existingMoodBoard = await prisma.moodBoard.findFirst({
-      where: {
-        id: moodBoardId,
-        userId,
-      },
-    });
-
-    if (!existingMoodBoard) {
-      return res.status(404).json({ error: 'MoodBoard not found' });
-    }
-
-    // Build update data object, only including defined fields
-    const updateData: any = {};
-    if (canvasWidth !== undefined) updateData.canvasWidth = canvasWidth;
-    if (canvasHeight !== undefined) updateData.canvasHeight = canvasHeight;
-
-    const moodBoard = await prisma.moodBoard.update({
-      where: { 
-        id: moodBoardId,
-      },
-      data: updateData,
-      include: {
-        items: {
-          orderBy: { createdAt: 'desc' },
-        },
-      },
-    });
-
-    res.json(moodBoard);
-  } catch (error) {
-    console.error('Error updating moodboard:', error);
-    res.status(500).json({ error: 'Failed to update moodboard' });
   }
 };
 

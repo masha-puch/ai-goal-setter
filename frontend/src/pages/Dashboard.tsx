@@ -1,9 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
-import { Button, Card, Container, Group, SimpleGrid, Text, Title, Box, Paper } from '@mantine/core'
+import { Button, Card, Container, Group, SimpleGrid, Text, Title, Box, Paper, ActionIcon } from '@mantine/core'
 import { Link } from 'react-router-dom'
+import { IconPencil } from '@tabler/icons-react'
 import { useMoodBoard, useCreateMoodBoard } from '../api/hooks'
 import { useYear } from '../context/YearContext'
 import { MoodboardCanvas } from '../components/moodboard'
+
+const CANVAS_WIDTH = 1200
+const CANVAS_HEIGHT = 800
 
 export function Dashboard() {
   const { year } = useYear()
@@ -27,12 +31,9 @@ export function Dashboard() {
     const container = containerRef.current
     const containerWidth = container.clientWidth - 32 // Account for padding
     const containerHeight = 500 // Max height for moodboard section
-    
-    const canvasWidth = moodBoard.canvasWidth ?? 1200
-    const canvasHeight = moodBoard.canvasHeight ?? 800
 
-    const scaleX = containerWidth / canvasWidth
-    const scaleY = containerHeight / canvasHeight
+    const scaleX = containerWidth / CANVAS_WIDTH
+    const scaleY = containerHeight / CANVAS_HEIGHT
     const newScale = Math.min(scaleX, scaleY, 1) // Don't scale up, only down
 
     setScale(newScale)
@@ -45,14 +46,22 @@ export function Dashboard() {
       
       {/* Moodboard*/}
       <Box mt="lg" mb="lg">
-        <Group justify="space-between" mb="sm">
-          <Title order={4}>Mood Board</Title>
-          <Button component={Link} to="/moodboard" variant="light" size="xs">
-            Edit
-          </Button>
-        </Group>
         {moodBoard && moodBoard.items && moodBoard.items.length > 0 ? (
-          <Paper withBorder p="md" radius="md" style={{ overflow: 'hidden' }}>
+          <Paper withBorder p="md" radius="md" style={{ overflow: 'hidden', position: 'relative' }}>
+            <ActionIcon 
+              component={Link} 
+              to="/moodboard" 
+              variant="light" 
+              size="lg"
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                zIndex: 10,
+              }}
+            >
+              <IconPencil size={20} />
+            </ActionIcon>
             <Box 
               ref={containerRef}
               style={{ 
@@ -67,8 +76,8 @@ export function Dashboard() {
                 style={{
                   transform: `scale(${scale})`,
                   transformOrigin: 'top center',
-                  width: moodBoard.canvasWidth ?? 1200,
-                  height: moodBoard.canvasHeight ?? 800,
+                  width: CANVAS_WIDTH,
+                  height: CANVAS_HEIGHT,
                 }}
               >
                 <MoodboardCanvas 

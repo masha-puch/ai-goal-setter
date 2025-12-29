@@ -15,7 +15,6 @@ import {
   useCreateMoodBoardItem, 
   useDeleteMoodBoardItem,
   useUpdateMoodBoardItem,
-  useUpdateMoodBoard,
 } from '../api/hooks'
 import { useYear } from '../context/YearContext'
 import { 
@@ -46,11 +45,9 @@ export function MoodboardPage() {
   const createItem = useCreateMoodBoardItem(moodBoardId || '')
   const deleteItem = useDeleteMoodBoardItem(moodBoardId || '')
   const updateItem = useUpdateMoodBoardItem(moodBoardId || '')
-  const updateMoodBoard = useUpdateMoodBoard()
 
   const {
     localPositions,
-    setLocalPositions,
     fileToBase64,
     getRandomPosition,
     handleAddItem,
@@ -59,46 +56,6 @@ export function MoodboardPage() {
     handleBringForward,
     handleSendBackward,
   } = useMoodboardItems(moodBoard ? [moodBoard] : [], moodBoardId, createItem, updateItem)
-
-  const handleCanvasResize = (newWidth: number, newHeight: number) => {
-    if (!moodBoard || !moodBoardId) return
-
-    const oldWidth = moodBoard.canvasWidth || 1200
-    const oldHeight = moodBoard.canvasHeight || 800
-
-    // Calculate scale ratios
-    const scaleX = newWidth / oldWidth
-    const scaleY = newHeight / oldHeight
-
-    // Scale all items proportionally
-    const updatedPositions: Record<string, { x: number; y: number; width: number; height: number; zIndex?: number }> = {}
-    
-    moodBoard.items?.forEach((item: any) => {
-      const currentPos = localPositions[item.id] || item.position || { x: 0, y: 0, width: 250, height: 250, zIndex: 1 }
-      updatedPositions[item.id] = {
-        x: currentPos.x * scaleX,
-        y: currentPos.y * scaleY,
-        width: currentPos.width * scaleX,
-        height: currentPos.height * scaleY,
-        zIndex: currentPos.zIndex,
-      }
-
-      // Update item position in backend
-      updateItem.mutate({
-        itemId: item.id,
-        data: { position: updatedPositions[item.id] }
-      })
-    })
-
-    // Update local positions
-    setLocalPositions(updatedPositions)
-
-    // Update canvas size in backend
-    updateMoodBoard.mutate({
-      moodBoardId,
-      data: { canvasWidth: newWidth, canvasHeight: newHeight }
-    })
-  }
 
   const {
     isDraggingFile,
@@ -163,7 +120,7 @@ export function MoodboardPage() {
             isLoading={createItem.isPending}
           />
 
-          <Box style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
+          <Box style={{ flex: 1, overflow: 'auto', minHeight: 0, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '20px' }}>
             {mode === 'edit' ? (
               <MoodboardCanvas 
                 moodBoard={moodBoard}
@@ -174,7 +131,6 @@ export function MoodboardPage() {
                 onResize={handleResize}
                 onBringForward={handleBringForward}
                 onSendBackward={handleSendBackward}
-                onCanvasResize={handleCanvasResize}
               />
             ) : (
               <MoodboardCanvas 
