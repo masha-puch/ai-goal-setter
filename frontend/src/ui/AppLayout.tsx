@@ -1,10 +1,10 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useYear } from '../context/YearContext'
-import { AppShell, Burger, Button, Group, Text, Title, ActionIcon, useMantineColorScheme, useComputedColorScheme, Select, NavLink } from '@mantine/core'
+import { AppShell, Burger, Button, Group, Text, ActionIcon, useMantineColorScheme, useComputedColorScheme, Select, NavLink } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { useEffect, useMemo } from 'react'
-import { IconSun, IconMoon } from '@tabler/icons-react'
+import { IconSun, IconMoon, IconTargetArrow } from '@tabler/icons-react'
 
 export function AppLayout() {
   const { user, logout } = useAuth()
@@ -47,7 +47,9 @@ export function AppLayout() {
         <Group justify="space-between" align="center" h="100%">
           <Group>
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-            <Title order={3}><Link to="/">Smart Notebook</Link></Title>
+            <Link to="/" style={{ display: 'flex', alignItems: 'center' }}>
+              <IconTargetArrow size={32} />
+            </Link>
             {user && (
               <Group gap="xs" visibleFrom="sm">
                 <Button 

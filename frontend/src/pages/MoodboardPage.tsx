@@ -6,8 +6,9 @@ import {
   Stack,
   Paper,
   Box,
+  Group,
+  SegmentedControl,
   useMantineTheme,
-  useMantineColorScheme,
 } from '@mantine/core'
 import { 
   useMoodBoard, 
@@ -20,14 +21,12 @@ import { useYear } from '../context/YearContext'
 import { 
   AddItemForm, 
   MoodboardCanvas, 
-  BoardHeader,
   useMoodboardItems,
   useMoodboardDragDrop,
 } from '../components/moodboard'
 
 export function MoodboardPage() {
   const theme = useMantineTheme()
-  const { colorScheme } = useMantineColorScheme()
   const { year } = useYear()
   const { data: moodBoard, isLoading } = useMoodBoard(year)
   const createMoodBoard = useCreateMoodBoard()
@@ -80,46 +79,27 @@ export function MoodboardPage() {
         transition: 'outline 0.2s ease',
       }}
     >
-      {isDraggingFile && (
-        <Box
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: colorScheme === 'dark' 
-              ? 'rgba(66, 153, 225, 0.1)' 
-              : 'rgba(66, 153, 225, 0.05)',
-            pointerEvents: 'none',
-            zIndex: 999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: '8px',
-          }}
-        >
-          <Text size="xl" fw={500} c="blue">
-            Drop images here to add to moodboard
-          </Text>
-        </Box>
-      )}
-      <Title order={2} mb="lg">Mood Board</Title>
+      <Group justify="space-between" align="center" mb="lg">
+        <Title order={2}>Mood Board</Title>
+        <SegmentedControl
+          value={mode}
+          onChange={(value) => setMode(value as 'edit' | 'read')}
+          data={[
+            { label: 'Edit', value: 'edit' },
+            { label: 'Read', value: 'read' },
+          ]}
+          size="sm"
+        />
+      </Group>
 
       {moodBoard ? (
         <Stack gap="md" style={{ height: 'calc(100vh - 280px)' }}>
-          <BoardHeader 
-            board={moodBoard}
-            mode={mode}
-            onModeChange={setMode}
-          />
 
           <AddItemForm 
             selectedMoodBoardId={moodBoardId}
             onAddItem={handleAddItem}
             isLoading={createItem.isPending}
           />
-
           <Box style={{ flex: 1, overflow: 'hidden', minHeight: 0, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '20px', width: '100%', boxSizing: 'border-box' }}>
             <Box style={{ width: '100%', maxWidth: '100%', display: 'flex', justifyContent: 'center', boxSizing: 'border-box' }}>
               {mode === 'edit' ? (

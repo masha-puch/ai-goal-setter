@@ -63,7 +63,7 @@ export function MoodboardCanvas({
     return (
       <Paper withBorder p="xl" radius="md" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Text ta="center" c="dimmed">
-          No items yet. Add your first item above!
+          No items yet. Add your first item above or drop images here!
         </Text>
       </Paper>
     )
