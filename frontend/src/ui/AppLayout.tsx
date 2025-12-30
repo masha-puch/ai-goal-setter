@@ -1,7 +1,7 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useYear } from '../context/YearContext'
-import { AppShell, Burger, Button, Group, Text, Title, ActionIcon, useMantineColorScheme, useComputedColorScheme, Select } from '@mantine/core'
+import { AppShell, Burger, Button, Group, Text, Title, ActionIcon, useMantineColorScheme, useComputedColorScheme, Select, NavLink } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { useEffect, useMemo } from 'react'
 import { IconSun, IconMoon } from '@tabler/icons-react'
@@ -40,7 +40,7 @@ export function AppLayout() {
   return (
     <AppShell
       header={{ height: 60 }}
-      navbar={{ width: 0, breakpoint: 'sm', collapsed: { desktop: true, mobile: !opened } }}
+      navbar={{ width: 200, breakpoint: 'sm', collapsed: { desktop: true, mobile: !opened } }}
       padding="md"
    >
       <AppShell.Header p="xs">
@@ -48,6 +48,34 @@ export function AppLayout() {
           <Group>
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
             <Title order={3}><Link to="/">Smart Notebook</Link></Title>
+            {user && (
+              <Group gap="xs" visibleFrom="sm">
+                <Button 
+                  component={Link} 
+                  to="/goals" 
+                  variant={location.pathname === '/goals' ? 'filled' : 'subtle'}
+                  size="sm"
+                >
+                  Goals
+                </Button>
+                <Button 
+                  component={Link} 
+                  to="/moodboard" 
+                  variant={location.pathname === '/moodboard' ? 'filled' : 'subtle'}
+                  size="sm"
+                >
+                  Moodboard
+                </Button>
+                <Button 
+                  component={Link} 
+                  to="/achievements" 
+                  variant={location.pathname === '/achievements' ? 'filled' : 'subtle'}
+                  size="sm"
+                >
+                  Achievements
+                </Button>
+              </Group>
+            )}
           </Group>
           <Group>
             <Select
@@ -79,6 +107,28 @@ export function AppLayout() {
           </Group>
         </Group>
       </AppShell.Header>
+      {user && (
+        <AppShell.Navbar p="md" hiddenFrom="sm">
+          <NavLink 
+            component={Link} 
+            to="/goals" 
+            label="Goals"
+            active={location.pathname === '/goals'}
+          />
+          <NavLink 
+            component={Link} 
+            to="/moodboard" 
+            label="Moodboard"
+            active={location.pathname === '/moodboard'}
+          />
+          <NavLink 
+            component={Link} 
+            to="/achievements" 
+            label="Achievements"
+            active={location.pathname === '/achievements'}
+          />
+        </AppShell.Navbar>
+      )}
       <AppShell.Main>
         <Outlet />
       </AppShell.Main>
